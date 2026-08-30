@@ -1,0 +1,31 @@
+name: 🟡 口径纠错
+description: 某个数字的口径、来源、日期或单位有问题
+title: "[口径] "
+labels: ["correction"]
+body:
+  - type: input
+    id: location
+    attributes:
+      label: 位置
+      placeholder: 例如：第二节 盘点表，工业机械臂那一行
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: 问题类型
+      options:
+        - 口径混用（下线/出货、累计/当年、亩/亩次、换过分母等）
+        - 来源性质标错了
+        - 有更权威或更新的版本
+        - 单位或数量级错误
+        - 日期错误
+    validations:
+      required: true
+  - type: textarea
+    id: detail
+    attributes:
+      label: 具体说明
+      description: 正确的口径是什么、依据是什么（请给可打开的来源）
+    validations:
+      required: true

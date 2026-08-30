@@ -1,0 +1,41 @@
+name: 🔴 提交证伪
+description: 你有证据表明本书某个判断是错的
+title: "[证伪] "
+labels: ["falsification"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢。这个项目最欢迎的贡献就是反证——被采纳的会记入 ERRATA.md 并保留署名。
+  - type: input
+    id: location
+    attributes:
+      label: 位置
+      description: 哪一节、哪一段、哪一行（写得越具体越好）
+      placeholder: 例如：第五节 样本一 · 自动驾驶，「它还没证明什么」那一段
+    validations:
+      required: true
+  - type: textarea
+    id: claim
+    attributes:
+      label: 书里的原话
+      description: 把你要反驳的那句话贴过来
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 你的证据
+      description: 请注明来源性质（监管数据／同行评审／第三方估算／当事方口径／媒体转述）与日期
+    validations:
+      required: true
+  - type: dropdown
+    id: scope
+    attributes:
+      label: 你认为它推翻了什么
+      options:
+        - 只推翻这一条结论
+        - 推翻这一节所依赖的判据
+        - 推翻整个框架的某个前提
+    validations:
+      required: true

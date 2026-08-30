@@ -1,0 +1,2295 @@
+<title>从大模型到物理世界</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#EEF0F1; --panel:#FAFBFB; --panel2:#F3F5F5;
+  --ink:#1A2328; --ink2:#2E3B42; --mut:#5C6971; --dim:#8A959C;
+  --line:#D5DBDD; --line2:#C2CACD;
+  --ac:#9A5C2B; --ac2:#B87A46; --acbg:#F0E5DA;
+  --ok:#3F6B57; --warn:#8A6A1F; --crit:#8C3A32;
+  --okbg:#E2EBE6; --warnbg:#F0EAD8; --critbg:#F1E1DF;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#11171B; --panel:#192025; --panel2:#1E262B;
+    --ink:#E0E6E9; --ink2:#C3CDD2; --mut:#8E9AA1; --dim:#6E7A81;
+    --line:#283238; --line2:#333F46;
+    --ac:#D3925A; --ac2:#E0A972; --acbg:#2A2018;
+    --ok:#7FB39A; --warn:#CBAA5E; --crit:#D2867C;
+    --okbg:#1B2621; --warnbg:#262117; --critbg:#271B19;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11171B; --panel:#192025; --panel2:#1E262B;
+  --ink:#E0E6E9; --ink2:#C3CDD2; --mut:#8E9AA1; --dim:#6E7A81;
+  --line:#283238; --line2:#333F46;
+  --ac:#D3925A; --ac2:#E0A972; --acbg:#2A2018;
+  --ok:#7FB39A; --warn:#CBAA5E; --crit:#D2867C;
+  --okbg:#1B2621; --warnbg:#262117; --critbg:#271B19;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"IBM Plex Sans","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;
+  font-size:16px; line-height:1.85; letter-spacing:.01em;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:820px;margin:0 auto;padding:0 22px 120px}
+.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+
+/* ---------- masthead ---------- */
+header.mast{padding:64px 0 34px;border-bottom:2px solid var(--ink);margin-bottom:38px}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--ac);margin-bottom:18px}
+h1{font-size:clamp(32px,6.2vw,50px);line-height:1.12;margin:0 0 16px;font-weight:700;
+  letter-spacing:-.01em;text-wrap:balance}
+.standfirst{font-size:17px;color:var(--ink2);max-width:62ch;margin:0 0 22px}
+.byline{display:flex;flex-wrap:wrap;gap:8px 22px;font-family:"IBM Plex Mono",monospace;
+  font-size:12px;color:var(--dim);letter-spacing:.03em}
+
+/* ---------- structure ---------- */
+h2{font-size:23px;line-height:1.35;margin:60px 0 6px;font-weight:700;letter-spacing:-.005em;
+  padding-top:26px;border-top:1px solid var(--line2);text-wrap:balance}
+h2 .num{font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:500;color:var(--ac);
+  letter-spacing:.14em;display:block;margin-bottom:9px}
+h3{font-size:17px;margin:34px 0 8px;font-weight:600;color:var(--ink);text-wrap:balance}
+h4{font-size:15px;margin:24px 0 4px;font-weight:600;color:var(--ink2)}
+p{margin:0 0 15px;max-width:66ch}
+ul,ol{margin:0 0 16px;padding-left:22px;max-width:66ch}
+li{margin-bottom:7px}
+strong{font-weight:600;color:var(--ink)}
+em{font-style:normal;color:var(--ac);font-weight:500}
+a{color:var(--ac);text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:1px}
+a:focus-visible{outline:2px solid var(--ac);outline-offset:2px;border-radius:2px}
+hr{border:0;border-top:1px solid var(--line);margin:34px 0}
+
+/* ---------- evidence chips ---------- */
+.ev{font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:500;letter-spacing:.08em;
+  padding:1.5px 7px;border-radius:3px;vertical-align:2px;white-space:nowrap;border:1px solid transparent}
+.ev.f{background:var(--okbg);color:var(--ok);border-color:var(--ok)}
+.ev.i{background:var(--warnbg);color:var(--warn);border-color:var(--warn)}
+.ev.j{background:var(--critbg);color:var(--crit);border-color:var(--crit)}
+
+/* ---------- callouts ---------- */
+.note{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--ac);
+  padding:15px 18px;margin:22px 0;font-size:15px}
+.note p:last-child{margin-bottom:0}
+.note .lb{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ac);display:block;margin-bottom:7px}
+.claim{background:var(--panel2);border:1px solid var(--line);padding:18px 20px;margin:24px 0;
+  font-size:17px;font-weight:600;line-height:1.7;color:var(--ink)}
+
+/* ---------- tables ---------- */
+.tw{overflow-x:auto;margin:22px 0;border:1px solid var(--line);background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:520px}
+th{text-align:left;font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--mut);font-weight:500;padding:11px 14px;
+  border-bottom:1px solid var(--line2);background:var(--panel2);vertical-align:bottom}
+td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.65}
+tr:last-child td{border-bottom:0}
+td.n{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;white-space:nowrap}
+td strong{font-weight:600}
+
+/* ---------- node ladder ---------- */
+.ladder{margin:26px 0;border:1px solid var(--line);background:var(--panel)}
+.rung{display:grid;grid-template-columns:52px 1fr;border-bottom:1px solid var(--line)}
+.rung:last-child{border-bottom:0}
+.rung .id{font-family:"IBM Plex Mono",monospace;font-size:19px;font-weight:600;color:var(--ac);
+  padding:15px 0 0;text-align:center;background:var(--panel2);border-right:1px solid var(--line)}
+.rung .bd{padding:14px 18px}
+.rung .t{font-weight:600;font-size:16px;margin-bottom:3px}
+.rung .d{font-size:14.5px;color:var(--ink2);margin-bottom:9px}
+.meter{display:flex;align-items:center;gap:10px}
+.track{flex:1;height:7px;background:var(--line);position:relative;overflow:hidden;border-radius:1px}
+.fill{position:absolute;left:0;top:0;bottom:0;background:var(--ac)}
+.pct{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--mut);
+  font-variant-numeric:tabular-nums;min-width:52px;text-align:right}
+
+/* ---------- person cards ---------- */
+.who{border:1px solid var(--line);background:var(--panel);padding:18px 20px;margin:18px 0}
+.who .h{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--ac);margin-bottom:4px}
+.who .n{font-size:17px;font-weight:600;margin-bottom:10px}
+.who dl{display:grid;grid-template-columns:auto 1fr;gap:7px 14px;margin:0;font-size:14.5px}
+.who dt{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.06em;color:var(--mut);
+  padding-top:4px;white-space:nowrap}
+.who dd{margin:0;color:var(--ink2)}
+
+/* ---------- misc ---------- */
+.src{font-size:13px;color:var(--mut);line-height:1.7}
+.src li{margin-bottom:6px}
+.foot{margin-top:70px;padding-top:22px;border-top:2px solid var(--ink);
+  font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--dim);line-height:1.9}
+.kv{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+@media (max-width:560px){
+  body{font-size:15.5px}
+  .who dl{grid-template-columns:1fr;gap:2px}
+  .who dt{padding-top:9px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+<style>
+.clock{border:1px solid var(--line);background:var(--panel);margin:20px 0}
+.clock .hd{display:flex;flex-wrap:wrap;gap:10px;align-items:baseline;padding:13px 18px;
+  border-bottom:1px solid var(--line);background:var(--panel2)}
+.clock .cid{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;color:var(--ac);font-weight:600}
+.clock .cn{font-size:17px;font-weight:700}
+.clock .bd{padding:14px 18px}
+.stage{display:flex;gap:0;margin:12px 0 4px;border:1px solid var(--line2);width:fit-content;max-width:100%;flex-wrap:wrap}
+.stage span{font-family:"IBM Plex Mono",monospace;font-size:11px;padding:4px 11px;color:var(--dim);
+  border-right:1px solid var(--line2);white-space:nowrap}
+.stage span:last-child{border-right:0}
+.stage span.on{background:var(--ac);color:#fff;font-weight:600}
+.fix{background:var(--critbg);border:1px solid var(--crit);padding:12px 15px;margin:16px 0;font-size:14px}
+.fix .lb{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--crit);font-weight:600;display:block;margin-bottom:5px}
+.fix p{margin:0 0 7px;max-width:none}
+.fix p:last-child{margin-bottom:0}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line);margin:20px 0}
+.two>div{padding:14px 17px}
+.two>div:first-child{border-right:1px solid var(--line)}
+.two .h{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.1em;color:var(--ac);
+  margin-bottom:7px;font-weight:600}
+.two p{font-size:14.5px;margin:0 0 9px;max-width:none}
+.two p:last-child{margin-bottom:0}
+@media (max-width:600px){.two{grid-template-columns:1fr}.two>div:first-child{border-right:0;border-bottom:1px solid var(--line)}}
+</style>
+<style>
+.lv{font-family:"IBM Plex Mono",monospace;font-size:10px;font-weight:600;letter-spacing:.06em;
+  padding:1px 6px;border-radius:3px;white-space:nowrap;border:1px solid transparent}
+.lv.h{background:var(--critbg);color:var(--crit);border-color:var(--crit)}
+.lv.m{background:var(--warnbg);color:var(--warn);border-color:var(--warn)}
+.lv.l{background:var(--okbg);color:var(--ok);border-color:var(--ok)}
+.var{border:1px solid var(--line);background:var(--panel);margin:16px 0;padding:15px 18px}
+.var .vn{display:flex;gap:10px;align-items:baseline;margin-bottom:6px}
+.var .vk{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ac);font-weight:600;letter-spacing:.1em}
+.var .vt{font-size:16px;font-weight:700}
+.var p{font-size:14.5px;margin:0 0 8px;max-width:none}
+.var p:last-child{margin-bottom:0}
+.axis2{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;
+  margin:10px 0 2px;font-size:12.5px;color:var(--mut)}
+.axis2 .ar{font-family:"IBM Plex Mono",monospace;color:var(--ac);font-size:11px}
+.axis2 .lft{text-align:right}
+</style><style>
+.part{margin:64px 0 8px;padding:22px 0 18px;border-top:3px solid var(--ink);border-bottom:1px solid var(--line2)}
+.part .pk{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.2em;color:var(--ac);
+  text-transform:uppercase;margin-bottom:8px}
+.part .pt{font-size:26px;font-weight:700;line-height:1.25;letter-spacing:-.01em;margin-bottom:6px}
+.part .pd{font-size:14.5px;color:var(--mut);max-width:62ch}
+</style>
+<div class="wrap">
+
+<header class="mast">
+  <div class="eyebrow">主线判断框架</div>
+  <h1>从大模型到物理世界</h1>
+  <p class="standfirst">哪些已经进去了、哪些正在进去、进到多深；哪些是能提前看到的先行指标，哪些只能事后确认；以及在这个过程里投资、消费、借贷、择业、学习该怎么办。全部结合中国的国情、体制和正在发生的事。</p>
+  <div class="byline">
+    <span>雨庭 × Claude</span>
+    <span class="mono">2026-08-29</span>
+  </div>
+</header>
+
+<h2><span class="num">导读</span>这份东西回答四个问题</h2>
+
+<ol>
+  <li><strong>进到哪了</strong>——哪些领域 AI 已经进入物理世界、哪些正在进入、各自进到多深。</li>
+  <li><strong>为什么是这个次序</strong>——决定深度的机制是什么（能力、对冲、伦理、账），中国的国情与体制怎么改变这个次序。</li>
+  <li><strong>看什么</strong>——先行指标、当期指标、滞后指标，三类分开用。</li>
+  <li><strong>怎么跟</strong>——每个决定本质上都是拿一种付出去换另一种，而你手里只有五种"货币"：钱、时间、注意力、风险、选择权。八类决策分别该怎么跟。</li>
+</ol>
+
+<div class="claim">先把测量对象钉死：<strong>本书量的不是"大模型部署了多少"，而是"机器自主执行在物理世界里有多深"</strong>；大模型只是这一轮给这个深度添加增量的来源之一，不是唯一来源。<br>把这句话记住，后面一半的争论可以省掉——比如"工业机械臂算不算大模型的战绩"这种。</div>
+
+<h3>这四问底下，只有三个问题在反复出现</h3>
+
+<p>四档深度、三类指标、八类决策，都是工具。工具下面永远是同样三问：</p>
+
+<div class="tw"><table>
+<thead><tr><th>问</th><th>它其实在判断什么</th></tr></thead>
+<tbody>
+<tr><td><strong>① 谁在付钱？</strong></td><td>需求是不是真的存在——还是补贴、科研经费、展示预算</td></tr>
+<tr><td><strong>② 为什么付？</strong></td><td>为生产付，还是为研究、展示、政策指标付。这一问决定深度</td></tr>
+<tr><td><strong>③ 失败了谁承担？</strong></td><td>没人盯着的时候谁扛。这一问决定能不能走到最深那一档</td></tr>
+</tbody>
+</table></div>
+
+<p class="src">后面出现的每一把尺子，都是这三问的操作化版本。读不下去的时候，回到这三问，通常就够用了。</p>
+
+<h3>标注规则</h3>
+<ul>
+  <li><span class="ev f">事实</span> 有可查来源与日期，并注明性质：监管数据／同行评审／第三方估算／当事方口径／媒体转述。</li>
+  <li><span class="ev i">推断</span> 由事实按明确逻辑推出，逻辑写在旁边，可以自己检查这一步。</li>
+  <li><span class="ev j">判断</span> 我的观点。第十四节列了它最可能错在哪。</li>
+</ul>
+
+
+<div class="part">
+  <div class="pk">第一部分</div>
+  <div class="pt">进到哪了：影响的盘点</div>
+  <div class="pd">哪些已经进入、哪些正在进入、各自进到多深，以及决定深度的机制。全部结合中国的国情、体制与正在发生的事。</div>
+</div>
+
+<h2><span class="num">开篇</span>什么叫「从大模型到物理世界」</h2>
+
+<p>先把这件事说清楚，否则后面所有的判断都没有对象。可以用三段来定位现在的位置：</p>
+
+<div class="tw"><table>
+<thead><tr><th>阶段</th><th>大模型是什么</th><th>它能做什么</th><th>输出落在哪</th></tr></thead>
+<tbody>
+<tr><td><strong>第一段 · 脑</strong></td><td>一个能理解和生成的大脑</td><td>只能说，不能做。你问它、它答你</td><td>文本、图像——<strong>比特</strong></td></tr>
+<tr><td><strong>第二段 · 虚拟的手脚</strong><br><span class="mono" style="font-size:11px">2026 年以来</span></td><td>大脑接上了工具</td><td><strong>第一次真的在"做事"</strong>——调用工具、操作软件、跨系统执行多步任务、自己检查再改</td><td>仍然是比特：改了文件、发了请求、跑了流程</td></tr>
+<tr><td><strong>第三段 · 物理的手脚</strong><br><span class="mono" style="font-size:11px">正在发生</span></td><td>大脑接上传感器与执行器</td><td>感知、接触、改变、乃至<strong>接管</strong>一段物质世界的运行</td><td><strong>原子</strong>：位置变了、东西被搬了、缺陷被修了、人被送到了</td></tr>
+</tbody>
+</table></div>
+
+<div class="claim">本书讨论的就是第二段到第三段这一步：大模型从有虚拟的手脚，到有物理的手脚。</div>
+
+<h3>为什么第二段只用了一年，第三段要用十年</h3>
+
+<p class="src"><strong>先说清"十年"这个数怎么来的：</strong>它不是点预测，是<strong>时间尺度判断</strong>。下面那张表能支持的结论只有一条："第三段会比第二段慢很多，慢在结构上。"它支持不了"正好十年"。<em>本书对所有年数都按这个标准处理：给量级，不给点值</em>（第九节那张先行指标表也是同样的理由，只给相对次序）。</p>
+
+<p><span class="ev i">推断</span> 因为决定速度的那几个条件，从比特侧跨到原子侧时<strong>全部翻转</strong>：</p>
+
+<div class="tw"><table>
+<thead><tr><th>条件</th><th>虚拟的手脚</th><th>物理的手脚</th></tr></thead>
+<tbody>
+<tr><td>错误能不能撤销</td><td>能。回滚、重跑、ctrl+z</td><td><strong>大量不可逆</strong>——撞坏了、切错了、送错了</td></tr>
+<tr><td>做对了没有，好不好验</td><td>便宜。跑个测试、看个返回值</td><td>常常很贵，有时根本测不起</td></tr>
+<tr><td>环境能不能改造去迁就它</td><td>几乎免费。改个接口、改个提示词</td><td>要动工装、动流程、动混凝土</td></tr>
+<tr><td>出了事谁兜底</td><td>基本无人需要签字</td><td><strong>必须有人或有资本承接</strong></td></tr>
+</tbody>
+</table></div>
+
+<p>同一个模型能力，在两边表现天差地别，全部原因就在这张表里。<em>虚拟手脚铺开得那么快，不是因为它更难，是因为它四条全绿。</em></p>
+
+<h3>"接触"和"接管"不是一回事</h3>
+
+<p>日常说"AI 进入物理世界"，其实混了三件深浅完全不同的事：</p>
+
+<ul>
+<li><strong>感知</strong>——看见、测量、盘点、识别缺陷。这一波早就跑完了，而且几乎没上新闻，因为它不好看。</li>
+<li><strong>接触</strong>——动手改变物理状态，但有人在旁边盯着、随时能接管。<em>今天绝大多数"机器人落地"停在这一档。</em></li>
+<li><strong>接管</strong>——常态下没有人盯着，出了事由制度化的安排承接后果。<strong>这一步是最难的，而且难点通常不在技术。</strong></li>
+</ul>
+
+<div class="claim">所以正确的问法不是"AI 进没进物理世界"，而是"在哪个领域进到了哪一档"。它早就进去了，问题一直是深度。</div>
+
+<p>下一节把这三个词变成可判定的四个档位，并给出决定深度的那几条判据。</p>
+
+
+
+<h3>这本书在整张地图的哪个位置</h3>
+
+<p>把视野拉到最大，人类的技术史可以看成机器一层层往里啃：<strong>先啃体力（农业→蒸汽→电力→核能），再啃脑力（语言→文字→印刷→电报→互联网→AI），现在开始啃肉身（驯化→医学→DNA→基因编辑→合成生物）。</strong>三条线底下还垫着一层——不产机器、却让机器成为可能的东西：<em>求知的方法（科学革命）与协作的制度（金融与公司制）。</em></p>
+
+<div class="claim">这本书只做其中一格：第一条线（体力／物理执行）在当下这十年的一段——大模型从有虚拟的手脚，到有物理的手脚。</div>
+
+<div class="note">
+  <span class="lb">而这一格里，本书跟踪的是一个分岔，不是押一条路</span>
+  <p><strong>路径甲（像电力）：</strong>AI 通过载体进入物理世界，工作单元、设备、规范被逐步重构，最终出现一次大规模的存量报废。</p>
+  <p><strong>路径乙（像互联网）：</strong>AI 主要停在信息侧与决策辅助层，物理世界只做局部改造（专用机器＋改工作单元），不发生广域换新——<em>而这不代表革命没发生：互联网就是这么改变世界的。</em></p>
+  <p>目前两边都有证据：机房内部已经在报废（像电力），消费端毫无动静、专用自动化仍是"一行业一专机"（像互联网）。<strong>本书不预测走哪条，本书跟踪的是分岔本身</strong>；第十四节把"到 2030 年前后消费端仍无强制换新"写成了明确的证伪条件。<em>如果你读到一半觉得本书在预言换新潮，请回到这一段。</em></p>
+</div>
+
+<p>明确说清楚不做什么，比装作什么都做更有用：</p>
+
+<ul>
+<li><strong>不做生命线</strong>——基因编辑与合成生物不在本书跟踪范围，但它可能从需求侧改变本书的某些结论（第五节外科样本处会专门标出来）。</li>
+<li><strong>不做"三条线合流"的宏大推演</strong>——那是另一种文体。本书的价值恰恰来自把范围收窄到<em>每条结论都能挂上一个可观察指标</em>。</li>
+<li><strong>不做分配问题</strong>——技术红利怎么分是重要问题，但它是政治经济学题目，与本书要回答的"我该看什么、什么时候改变判断"不是同一件事。</li>
+<li><strong>和外部研究的分工</strong>——券商、咨询、产业研究回答的是"这个行业会怎样"，它们有一手数据；<em>本书回答的是"我该看什么、什么时候改变什么"。</em>这两件事不能互相替代，但前者可以持续给后者供料。所以本书不与任何一份产业报告比数据厚度，只比<strong>把数据接进决策</strong>这一段。</li>
+<li><strong>但会反复回到"海床"那一层</strong>——因为这一轮真正的闸门（责任怎么分配、接口谁来冻结）恰恰长在那里，而不是长在模型能力上。这条线索贯穿全书，第七节会把它单独拎出来命名。</li>
+</ul>
+
+<h2><span class="num">第一节 · 尺子</span>用什么衡量"进到多深"</h2>
+
+<h3>先把终点定义降一级</h3>
+
+<p>最不可伪造的终点标志是：<strong>身边的物品开始被迫更换，而且原因不是「新的更好」，是「旧的接不上了」。</strong>演示可以摆拍、出货量可以压库存、融资额可以讲故事，但存量资产的报废要真金白银付账。</p>
+
+<p><span class="ev i">推断</span> 但它是<strong>终点温度计，不是发生标准</strong>。拿它当门槛，会得出"巡检机器人在变电站跑了一年、机房在换液冷、无人车每周跑五十万单，但物理世界还没开始"这种荒谬结论。<em>所以本书用"深度"来度量，不用"是否进入"。</em></p>
+
+<h3>深度分四档</h3>
+
+
+
+<div class="tw"><table>
+<thead><tr><th>档</th><th>含义</th><th>判定</th></tr></thead>
+<tbody>
+<tr><td><strong>D1 演示</strong></td><td>能做，但没人付钱</td><td>只有样机、规划、示范</td></tr>
+<tr><td><strong>D2 有人付钱，人在旁边</strong></td><td>真实采购，但客户以科研教育示范为主，或全程有人监督</td><td>有付费部署，但无重复采购</td></tr>
+<tr><td><strong>D3 按产出付钱</strong></td><td>进入生产，按件／按工时／按产出计价，同一客户重复采购</td><td>复购 ＋ 服务网络 ＋ 生产性计价</td></tr>
+<tr><td><strong>D4 无人监督</strong></td><td>常态下没有人盯着，失败由制度化的对冲承接<br><strong>标 D4 时必须同时写明它的对冲容器是什么</strong></td><td>有承保、包赔、采购方成规模承担，<em>或围栏与安规等制度化分摊</em></td></tr>
+</tbody>
+</table></div>
+
+<div class="note">
+  <span class="lb">先说清这把尺子的性质</span>
+  <p>D1–D4 是<strong>一把用于决策的主尺度，不是技术成熟度的完整状态空间。</strong>它把三样东西压在了一根刻度上：<em>自主程度（有没有人盯着）、商业成熟度（谁在付钱、为什么付）、风险承接（失败了谁扛）。</em></p>
+  <p>压在一起是为了能用——决策时你需要的是一个能排序的东西。代价是：<strong>三者不同步时，这根刻度会失真。</strong>本书的处理是：<em>以"风险承接"那一维为准</em>，因为它是最难伪造、也最难跨越的一维；同时凡标 D4 都注明它的对冲容器（见下），让读者能自己拆开看。</p>
+</div>
+
+<p>退出条件同样要写死：<em>连续两年无新增付费客户 → 退回 D1；重复采购停止或设备闲置 → 退回 D2。</em></p>
+
+<div class="note">
+  <span class="lb">D4 不是一个可以加总的单位</span>
+  <p>扫地机、工业机械臂、无人驾驶都被标成 D4，但它们的<strong>对冲容器完全不同</strong>：扫地机是<em>无需对冲</em>（损失小到不值得设计安排）、工业臂是<em>围栏与安规</em>（把人挡在外面）、无人驾驶是<em>商业保险与公司运营责任</em>（把责任整个换掉）、大型集采是<em>采购方的资产负债表</em>。</p>
+  <p>按上面三类归一下：无需对冲＝不进入这个问题；围栏与安规＝制度化分摊的早期形态；采购方资产负债表＝自留；商业保险＝转移。<strong>四种容器的建立难度、可迁移性、崩溃方式都不一样。</strong><strong>所以本书凡标 D4，都会同时注明容器；也因此不同格子的 D4 不能相加、不能当作同一种"完成度"。</strong>深度尺量的是"有没有人盯着"，容器回答的是"没人盯着的时候谁扛"——两个问题，一起看才成立。</p>
+</div>
+
+<p class="src">注意：<strong>D3 到 D4 这一步，往往不是技术问题</strong>——它要么卡在没人愿意为无人监督兜底（判据一），要么卡在制度不允许取消人类环节（判据三）。这两条是完全不同的卡点，混起来会误判。</p>
+
+
+<h4>把这把尺子用一遍：四个当场判定</h4>
+
+<p>定义写出来还不算数，要能当场量。拿四个身边的东西走一遍，判定过程比结论重要：</p>
+
+<div class="tw"><table>
+<thead><tr><th>对象</th><th>判定过程</th><th>档</th></tr></thead>
+<tbody>
+<tr><td><strong>扫地机器人</strong></td><td>真实付费、按次数使用、同一用户会复购换代、失败代价极低（撞倒杯子）且没人需要在旁边盯着——四条判据全过，唯一没到"制度化对冲"是因为它<strong>不需要</strong>：损失小到不值得设计对冲</td><td><strong>D3–D4</strong>（专用家用，注意它不等于"家用通用机器人"那一格）</td></tr>
+<tr><td><strong>餐厅送餐车</strong></td><td>按产出付费、同一家店会加购、日常无人盯——但它跑在一条被改造过的路线上（地面平整、路径固定、有人兜底交付最后一步）</td><td><strong>D3</strong></td></tr>
+<tr><td><strong>展厅里的人形机器人</strong></td><td>确实有人付了钱，但买的目的是展示与研究，不是生产；没有按产出计价，也没有同一客户为同一用途的重复采购</td><td><strong>D2</strong>——"有人付钱"与"为了生产而付钱"是两件事，这一档就是用来装它们的</td></tr>
+<tr><td><strong>家用通用机器人</strong></td><td>演示很好看，但没有真实的生产性付费；卡在"成功便宜可测"——单个动作可验，整体完成度测不起</td><td><strong>D1</strong></td></tr>
+</tbody>
+</table></div>
+
+<p><span class="ev j">判断</span> 走完这四个你会发现一件事：<em>决定档位的从来不是它看起来多先进，而是"谁在付钱、为什么付、失败了谁承担"。</em>这三问就是这把尺子的全部。后面每一节遇到新东西，都按这三问过一遍。</p>
+
+<h3>决定深度的四条条件，加三条判据</h3>
+
+<div class="tw"><table>
+<thead><tr><th>条件</th><th>含义</th><th>缺了会怎样</th></tr></thead>
+<tbody>
+<tr><td><strong>失败代价可圈定</strong></td><td>后果有上限</td><td>停在围栏里，上不了 D3</td></tr>
+<tr><td><strong>环境可被改造</strong></td><td>改世界迁就机器，而不是反过来</td><td>要求通用能力，成本失控</td></tr>
+<tr><td><strong>重复次数足够多</strong></td><td>调试是固定成本，靠次数摊</td><td>集成费永远回不了本</td></tr>
+<tr><td><strong>成功便宜可测</strong></td><td>「做对了没有」能低成本自动判定</td><td>没有学习回路，永远靠人盯</td></tr>
+</tbody>
+</table></div>
+
+<p><span class="ev j">判断</span> 第四条最被低估。家务之所以最难，不只是环境不可改，还因为<em>整体完成度测不起</em>——单个动作可验，但"这家人算不算满意"没有统一的低成本判定；而「这件货分对了没有」「这趟车送到了没有」可以零成本闭环——这才是分拣和无人驾驶先跑起来的深层原因。</p>
+
+<div class="var">
+  <div class="vn"><span class="vk">判据一</span><span class="vt">风险对冲的深度</span></div>
+  <p>问的不是「有没有人能签字」，而是：<strong>有没有人、有多大资源，愿意为这件事的失败兜底？</strong></p>
+  <p><span class="ev i">推断</span> 它<strong>不是闸门，是深度调节器</strong>。低风险、封闭、有人监督的场景不需要任何正式安排就能开始——起点和过程都不受它约束。它决定的是能不能从 D3 走到 D4。</p>
+  <p><span class="ev j">判断</span> 还要给它一个名字，否则后面几节会各说各的：<strong>它判的不是技术，是「社会技术」</strong>——保险险种、招标技术规范、验收条款、产品责任、特种作业许可，全都是<em>协作制度</em>，不是设备。所以<strong>它的节奏与技术进步无关</strong>：技术可以一年翻一倍，一套责任分配规则可能十年不动；而一次事故也可能让它三个月内改写。<em>把这条判据当成"等技术再好一点就自然解决"的，都会把等待时间估错一个数量级。</em></p>
+</div>
+
+<div class="claim">「有资源、有资本愿意为它做风险对冲」——这是判断一个方向真的在往深处走，最直观的标准。</div>
+
+<h4>但"对冲"有三种，不能混成一种</h4>
+
+<div class="tw"><table>
+<thead><tr><th>形态</th><th>机制</th><th>典型</th><th>它的弱点</th></tr></thead>
+<tbody>
+<tr><td><strong>风险自留</strong></td><td>出事自己扛，不做池化也不定价</td><td>大型采购方用自己的资产负债表承担；企业自保</td><td>只在承担方够大时成立；<strong>一次尾部事故就可能改变整个方向的节奏</strong></td></tr>
+<tr><td><strong>风险转移</strong></td><td>付费把损失转给第三方，隐含概率定价</td><td>商业保险、包赔条款、延长质保</td><td>要求可精算——没有分母就没有保单</td></tr>
+<tr><td><strong>制度化分摊</strong></td><td>由规则把责任在多方之间切开</td><td>产品责任、强制险、认证与验收制度、特种作业许可</td><td>建立最慢，但一旦建成最稳，而且可复制到后来者</td></tr>
+</tbody>
+</table></div>
+
+<p><span class="ev i">推断</span> 用这三类看中美，比"形式不同、本质相同"精确得多：<strong>美国的主力是转移与分摊</strong>（保险市场与产品责任），<strong>中国的主力目前是自留</strong>（大型采购方用自己的资产负债表承担）。<em>一次性规划采购八千多台设备，本质是一个有资源的主体愿意为这个方向的失败兜底——这确实是"有人兜底"，但它是三类里的第一类，不是保险的等价物。</em></p>
+
+<div class="claim">自留能让一个方向先跑起来，但跑不出承担方的资产负债表；只有走到转移与分摊，它才可能扩散到没有大靠山的中小采购方。</div>
+
+<p><span class="ev j">判断</span> 由此得到一个很实际的观察顺序：<strong>先看有没有人自留</strong>（有资源的主体愿意兜底＝方向被认可）→ <strong>再看有没有人肯转移</strong>（保险公司敢报价＝风险已可精算）→ <strong>最后看有没有制度化分摊</strong>（规则写下来＝这件事对所有人都成立）。三步走完，一个方向才算真的站住。<em>国内目前绝大多数场景停在第一步。</em></p>
+
+
+<div class="var">
+  <div class="vn"><span class="vk">判据二</span><span class="vt">能力缺口：尾部失败率</span></div>
+  <p>不是平均性能，是尾部——分布外场景、长时序任务、罕见但致命的失败模式。</p>
+  <p><span class="ev j">判断</span> 这一条最容易被制度类解释掩盖。家务是最好的检验：<strong>单个动作的结果可以当场验</strong>（这只碗洗干净了没有），<em>但开放式家务的整体完成度——有没有遗漏、有没有弄坏东西、是否合这家人的偏好——很难形成统一的低成本判定</em>。所以家务同时卡在两处：<strong>整体验证测不起，而单个动作的可靠性又不够。</strong>它不需要执照，责任不是主因。</p>
+</div>
+
+<div class="var">
+  <div class="vn"><span class="vk">判据三</span><span class="vt">伦理约束：既是门槛，也是深度上限</span></div>
+  <p>伦理在这条线上出现两次，性质不同，不能混为一谈。</p>
+  <p><strong>作为门槛</strong>——少数场景在伦理上根本不允许开始，无论技术多成熟：涉及不可逆损害、且受害者无法表达同意的（对儿童、失能者、未出生者）。<em>这类是硬门槛，不是深度问题。</em></p>
+  <p><strong>作为深度上限</strong>——绝大多数场景不是禁止进入，而是<strong>强制保留人类环节</strong>：允许你走到 D3，不允许走到 D4。司法、临床用药、涉及未成年人的评价，都属于这一类。<span class="ev f">事实</span>（监管／官方数据）司法领域有成文样本：最高人民法院 2022 年《关于规范和加强人工智能司法应用的意见》确立「人机结合」原则，明确审判权由审判组织行使、人工智能只作辅助而不得代替法官裁判——这正是"允许 D3、不允许 D4"写进规范性文件的样子。</p>
+  <p><span class="ev i">推断</span> 判断某条伦理约束会不会松动，问三个问题：<strong>损害是否不可逆？受害者是否无法表达有效同意？受损者是否有组织？</strong>三项都为「否」时，历史上很难长期挡住；三项中任何一项为「是」，约束都会显著增强，<em>而前两项同时为「是」时构成硬门槛</em>。</p>
+
+<p class="src">这三问只给方向不给权重，且不能预测强度——损害严重性、风险是否外溢给第三人、有无替代方案、受影响群体的代表能力，都会改变结果。<strong>它是提问清单，不是判据函数。</strong></p>
+  <p class="src">中国的特殊性：伦理约束常以规范性文件形式<strong>先行</strong>出台，而不是靠判例逐步积累。这意味着门槛出现得更早、也更清晰——<em>对部署其实是好事（不确定性低），但一旦划线，突破需要制度动作，不是市场行为。</em></p>
+</div>
+
+<p>最后一道是需求侧门槛：<strong>任务级全生命周期成本</strong>，以及两个乘数——<strong>任务频次 × 规模</strong>（一年只用三周的设备摊不掉固定成本）和<strong>被替代劳动的相对价格</strong>（同一套巡检，在德国和在中国的替代阈值差一个数量级）。<em>技术条件全过但账不过的事，可以被资本硬扛一段，但撑不久。</em></p>
+
+
+<h2><span class="num">第二节 · 盘点</span>已经进入的、正在进入的、还没进的</h2>
+
+<p>这是全文的主干。按深度从高到低排，每一行都标注中国的实际状况。</p>
+
+<div class="tw"><table>
+<thead><tr><th>领域</th><th>深度</th><th>这一档是谁带来的</th><th>中国的实际状况</th><th>卡在哪一条</th></tr></thead>
+<tbody>
+<tr><td colspan="5" style="background:var(--panel2)"><strong>已经深度进入（D4：无人监督常态运行）</strong></td></tr>
+<tr><td>算力基础设施的存量报废</td><td><span class="lv l">D4</span><br><span class="mono" style="font-size:9.5px;color:var(--mut)">容器：无需对冲</span></td><td><span class="lv l">上游资本开支</span><br>不是模型控制执行器</td><td>风冷机房接不上高密度机架、上一代加速器租金腰斩——不兼容真实发生，但它是训练竞赛的设施折旧</td><td>—<br><em>只作基线，不进主线进度</em></td></tr>
+<tr><td>工业机械臂与产线自动化</td><td><span class="lv l">D4</span><br><span class="mono" style="font-size:9.5px;color:var(--mut)">容器：围栏与安规</span></td><td><span class="lv m">手写的模型</span><br>示教再现＋PLC＋经典视觉</td><td>在役存量约 <strong>202.7 万台</strong>（按寿命假定估算），2024 年新装 29.5 万台占全球 54%，本土厂商国内份额首破 57%</td><td>柔性与换型成本<br><em>学出来的模型在此尚是增量</em></td></tr>
+<tr><td>物流分拣、仓储 AMR</td><td><span class="lv l">D4</span><span class="mono" style="font-size:10px">（头部）</span><br><span class="mono" style="font-size:9.5px;color:var(--mut)">容器：封闭作业域</span></td><td><span class="lv m">手写的模型＋调度算法</span></td><td>头部仓已接近无人值守；但外部对数百家仓库客户的调研显示，大型仓库日常运营用到 AI 的<strong>不足一半</strong>，相当比例大公司自动化率低于四分之一——<em>头部与行业不是一回事</em></td><td>前期成本与回收期</td></tr>
+<tr><td>农机自动驾驶与精准作业</td><td><span class="lv l">D4</span><span class="mono" style="font-size:10px">（规模农场）</span><br><span class="mono" style="font-size:9.5px;color:var(--mut)">容器：作业域＋机手在场</span></td><td><span class="lv m">卫星导航＋手写控制</span></td><td>大田自动导航在规模化产区已常态；靠的是二十世纪的机械化环境改造（垄距、株距）与九十年代以后的精准作业</td><td>频次（靠作业服务化补）</td></tr>
+<tr><td colspan="5" style="background:var(--panel2)"><strong>正在进入（D3：按产出付钱，但仍有人监督或远程值守）</strong></td></tr>
+<tr><td style="border-left:3px solid var(--ac)">地理围栏内的无人驾驶<br><span class="mono" style="font-size:9.5px;color:var(--mut)">Robotaxi</span></td><td><span class="lv m">D3→D4</span><br><span class="mono" style="font-size:9.5px;color:var(--mut)">容器：商业保险＋公司运营责任</span></td><td><span class="lv l">学出来的模型是必要条件</span></td><td>美国头部约 3,500 辆、约 50 万次/周、车内无安全员；国内多家在 10 个以上城市运营、千辆级，但<strong>有无安全员并存，不能与前者同格</strong></td><td><strong>单位经济</strong>（利用率在降）</td></tr>
+<tr><td>工业质检与视觉检测</td><td><span class="lv m">D3</span></td><td><span class="lv m">多数仍是经典视觉</span><br>大模型视觉是增量</td><td>电子、新能源产线已大量部署，产线视觉多年无人值守<br><span class="mono" style="font-size:11px">注：IFR 的"电子电气装机 8.3 万台超过汽车 5.72 万台"是<strong>工业机器人按客户行业</strong>的新装量，不是质检设备保有量</span></td><td>非标迁移成本；<strong>该格缺可核的质检口径</strong></td></tr>
+<tr><td>电力巡检与带电作业</td><td><span class="lv h">意向</span><br><span class="mono" style="font-size:10px">不进 D3</span></td><td><span class="lv m">四足＋经典视觉为主</span></td><td><strong>没有可用的付费部署读数。</strong>流传的规模数字来自媒体报道的内部规划，未获官方确认，且已有报道称实际中标公示远小于规划<br><span class="mono" style="font-size:10px">（该规划口径约 8,500 台／68 亿元，本书不作为进度依据，仅备查）</span></td><td><strong>按本书自己的尺子，规划不是付费部署</strong>——只能记采购意图</td></tr>
+<tr><td colspan="5" style="background:var(--panel2)"><strong>刚进入，很浅（D2：有人付钱，但主要不是为了生产）</strong></td></tr>
+<tr><td style="border-left:3px solid var(--ac)">通用人形机器人</td><td><span class="lv h">D2</span></td><td><span class="lv l">学出来的模型是必要条件</span></td><td>某头部厂商 2025 年 1–9 月人形收入：科研教育 73.60%、商业消费 17.39%、行业应用 9.01%，其中企业导览占 50–70%，明确工业场景约 <strong>1,570 万元</strong>（约占人形总收入 2.6%）<br><span class="mono" style="font-size:11px">当事方口径·单家·三季度。另有厂商自称工业场景占比更高，对手方证据未定论</span></td><td>尾部可靠性（厂商自述：大脑不够智能、手不够灵巧）</td></tr>
+<tr><td style="border-left:3px solid var(--ac)">外科手术的自主子步骤</td><td><span class="lv h">D2</span><span class="mono" style="font-size:10px">（自主部分）</span></td><td><span class="lv l">学出来的模型</span><br><em>遥操作主机是 D4 级商业化增强设备，不同物</em></td><td>刚性解剖（骨科导航、放射外科）已是商业产品；软组织自主仍在研究阶段</td><td>验证极慢 ＋ 无对冲 ＋ <strong>伦理限深</strong></td></tr>
+<tr><td style="border-left:3px solid var(--ac)">露天采摘、非结构化农事</td><td><span class="lv h">D2</span></td><td><span class="lv l">学出来的模型</span></td><td>浆果、叶菜等柔性对象仍以人工为主<span class="mono" style="font-size:11px">（此格证据薄，接近以结论当判定）</span></td><td>柔性接触 ＋ 环境不可控</td></tr>
+<tr><td colspan="5" style="background:var(--panel2)"><strong>尚未进入（D1：只有演示）</strong></td></tr>
+<tr><td style="border-left:3px solid var(--ac)">家用<strong>通用</strong>机器人</td><td><span class="lv h">D1</span></td><td><span class="lv l">学出来的模型</span></td><td>无真实生产性付费<br><span class="mono" style="font-size:11px">注：扫地机、割草机、泳池清洁等<strong>专用</strong>家用机器人已达 D3–D4，此格只指开放式多任务</span></td><td>整体完成度无低成本判定，单动作可靠性不够</td></tr>
+<tr><td>外科主刀（完整术式自主）</td><td><span class="lv h">未达 D1</span></td><td>—</td><td>全球尚无系统完成完整自主术式，连演示都不成立</td><td>人体不能改造 ＋ 无对冲 ＋ <strong>伦理硬门槛</strong></td></tr>
+<tr><td style="border-left:3px solid var(--ac)">开放道路的通用无人驾驶</td><td><span class="lv h">D1</span></td><td><span class="lv l">学出来的模型</span></td><td>脱离地理围栏的通用能力尚未验证<br><span class="mono" style="font-size:11px">注：带人监督的量产辅助驾驶另计，至少 D2</span></td><td>每进一个新城仍需数个季度</td></tr>
+</tbody>
+</table></div>
+
+<p class="src"><strong>读表图例：</strong>左侧带竖条的行＝<em>这一波的增量</em>（"学出来的模型"是必要条件）；其余行是<em>基线</em>（上游资本开支或手写的模型带来的深度）。<strong>两类不可合计，也不可平均——把它们加在一起，就会把二十世纪的自动化成果读成大模型的战绩。</strong></p>
+
+<div class="fix">
+  <span class="lb">"这一档是谁带来的"这一列，是为了防一件事</span>
+  <p>不区分这一列，这张表就会被误读成「大模型进入物理世界的进度」——而它测的其实是<strong>机器自主的总深度</strong>，其中大部分由前一代技术带来。</p>
+  <p>本书不主张按"是不是大模型"把前几行剔出去，因为<strong>手写的模型（PLC、示教再现、经典视觉）与学出来的模型（VLA）是同一件事的连续谱</strong>——区别在模型怎么来的、有多通用，不在有无。而且那两百万台存量正是新能力最可能落地的基座，删掉它等于把最可能的路径的分母删了。</p>
+  <p><strong>但读表时必须分开读</strong>：「上游资本开支」与「手写的模型」两类是<em>基线</em>，「学出来的模型是必要条件」那几行才是<em>这一波的增量</em>。<em>基线不是杂质，基线是参照系——没有它就看不出增量在哪。</em></p>
+</div>
+
+
+<h3>第二张表：增强路线的盘点（主表漏掉的那一半）</h3>
+
+<p>上面那张表按"人还在不在画面里"切，因此会系统性漏掉一整类东西：<strong>人没被替代，但人的能力被机器放大了。</strong>遥操作、辅助驾驶、外骨骼、一人多机——这些既不是 D1 也不是 D4，因为它们根本不在同一把尺子上。</p>
+
+<div class="tw"><table>
+<thead><tr><th>场景</th><th>渗透程度</th><th>它替掉了什么</th><th>它没替掉什么</th></tr></thead>
+<tbody>
+<tr><td><strong>遥操作外科</strong></td><td>已商业化二十余年、规模化</td><td>入路与创伤：微创手术量大幅增加</td><td>决策与判断——并发症率并未因此下降</td></tr>
+<tr><td><strong>量产辅助驾驶</strong></td><td>大规模在售、日常使用</td><td>持续注意力与部分操作</td><td>责任：驾驶员仍在环里、仍要签字</td></tr>
+<tr><td><strong>一人多机</strong><br>（无人机、仓内远程操作、部分手术）</td><td>正在扩张</td><td>"必须在场"这个约束——覆盖半径被放大到多台设备</td><td>判断与担责；出事仍归那一个人</td></tr>
+<tr><td><strong>外骨骼与助力装备</strong></td><td>小规模、场景化</td><td>力量与耐力</td><td>精细操作——受限于人的感知—动作环延迟</td></tr>
+<tr><td><strong>AR 与视觉辅助装配</strong></td><td>点状部署</td><td>记忆与查阅：把工艺文件搬到眼前</td><td>手上功夫与现场诊断</td></tr>
+</tbody>
+</table></div>
+
+<h4>这张表真正该有的那个指标：一个人管多少台</h4>
+
+<p><span class="ev j">判断</span> 主表量"有没有人"，这张表要量的是<strong>一个人覆盖多少个工作单元</strong>——姑且叫它<em>人机杠杆倍数（1:N）</em>。它比"有没有人"更贴近真实的经济影响，理由很直接：</p>
+
+<div class="claim">如果未来十年真正发生的是"1 个人管 3 台 → 1 个人管 10 台"，而不是"0 人运行"，那么 D4 就不是经济上最重要的那一档——<strong>人还在，但每单位产出所需的人已经少了一个数量级。</strong>这种变化在主表上几乎看不出来，因为画面里始终有人。</div>
+
+<p>怎么观察它：<em>同一岗位配备的设备台数、远程值守中心的席位与在管设备比、招聘描述里"负责 N 台"的 N 值变化、以及单位产出的人工工时。</em>这四个都是本地可查的，而且比任何出货量都贴近现实。</p>
+
+<p class="src">本书没有给这个指标定档位，因为公开数据太薄——它先作为一个<strong>待观察量</strong>记在这里，纳入附录二的跟踪清单。</p>
+
+<div class="claim">这两张表<strong>不可相加</strong>。主表量的是"机器自主的深度"，这张表量的是"人的能力被放大的倍数"。一个场景可以在主表上停在 D2、同时在这张表上已经规模化——遥操作外科正是如此。把两者加起来，会同时高估自主进度、低估真实影响。</div>
+
+<p><span class="ev j">判断</span> 为什么这半张表容易被整个忽略：<em>因为它不好看。</em>画面里还有人，就不像"AI 来了"。但从账上看，增强路线这些年赢的次数远多于替代路线——它绕开了 D3→D4 那道最难的闸（人还在环里，不需要新的对冲容器），也绕开了伦理那道上限（本来就没取消人类环节）。<strong>本书主线仍然跟踪替代深度，但必须承认：在可预见的时间里，物理世界里真正在赚钱的，可能主要是这一半。</strong></p>
+
+<p class="src">这张表的"渗透程度"只能给定性档：公开可核的装机与使用率数据比主表那边薄得多。证据这么薄仍然给出，是为了让框架不偏——<strong>一个只测替代的框架，会把最可能发生的那条路径整个漏掉。</strong></p>
+
+<h3>从这张表能直接读出的三件事</h3>
+
+<p><span class="ev i">推断</span> <strong>一、进得最深的全是"环境被改造过"的地方。</strong>产线、仓库、大田——共同点不是机器多聪明，是<em>世界先被重新设计成机器能处理的样子</em>。而未进入那几行的共同点是：陌生人的家、人体、开放道路——<strong>都是你不能重新设计的环境。</strong><span class="ev j">判断</span> 但要留一条对手方：这个共同点是从既有样本回读出来的，没有控制任务重复度、人力成本与失败损失，<em>属于观察不属于识别</em>。</p>
+
+<p><span class="ev i">推断</span> <strong>二、对冲只在部分格子里是 D3→D4 的关卡，不是普遍规律。</strong>地理围栏无人驾驶是最清楚的样本——<em>它把责任整个换掉并换成功了：车里没有持证司机，责任进了公司运营责任与商业保险</em>。但工业臂、仓储、农机走到 D4 靠的不是对冲切换，是围栏、封闭作业域和几十年的安规积累；而无人驾驶眼下卡的是单位经济，不是对冲。<strong>三者机制不同，不能用一句话概括。</strong></p>
+
+<p><span class="ev i">推断</span> <strong>三、"学出来的模型是必要条件"那几行，全部集中在 D2 及以下。</strong>这正是那一列最直接的读数：<em>这一波真正带来的深度，目前只到"有人付钱、但主要不是为了生产"。</em>至于人形，某头部厂商约 2.6% 的工业收入占比只能说明<strong>那一家、那三个季度</strong>的结构，不足以代表行业；但它足以支撑一条更窄的结论——<em>在收入结构仍以科研教育为主时，用出货增速论证"机器人进工厂"不成立。</em></p>
+
+<h2><span class="num">口径课</span>三个数字打架的现场</h2>
+
+<p>上一节那张表里的每一格，都建立在别人给的数字上。这一节先停下来，讲怎么读那些数字——用三个真实的打架现场。<em>它教的不是人形机器人，是看任何产业数字的手法。</em></p>
+
+<h3>现场一 · 2025 年全球人形机器人到底出了多少台</h3>
+
+<p><span class="ev f">事实</span>（第三方估算）三家机构给出三个数：IDC 约 <strong>1.8 万台</strong>；Omdia《通用具身机器人市场雷达》<strong>13,318 台</strong>；另有机构给出 <strong>2.2 万台以上</strong>。</p>
+
+<p><span class="ev f">事实</span>（当事方口径）厂商侧的澄清更值得看：某头部厂商于 2026 年 1 月公开澄清，其 2025 年人形机器人<strong>实际出货超 5,500 台、本体量产下线超 6,500 台</strong>，并明确该数字<strong>仅指纯人形</strong>、不含双臂轮式等其他形态，同时提醒不要把不同类型机器人的数量合并对比。另一家厂商 2025 年交付全尺寸人形 <strong>1,079 台</strong>。</p>
+
+<p>这些数字可以同时为真，因为它们中间隔着四把不同的尺子：</p>
+
+<div class="tw"><table>
+<thead><tr><th>刀口</th><th>差在哪</th><th>能差多少</th></tr></thead>
+<tbody>
+<tr><td><strong>下线 ≠ 出货</strong></td><td>下线是造出来了，出货是卖出去了。中间隔着库存与在途</td><td>同一家、同一年，6,500 与 5,500，差 1,000 台</td></tr>
+<tr><td><strong>累计 ≠ 当年</strong></td><td>"累计下线 1.5 万台"和"2025 年出货 1.1 万台"不同期</td><td>可以差出一整个量级</td></tr>
+<tr><td><strong>纯人形 ≠ 含衍生形态</strong></td><td>双臂轮式、半人形算不算，各家口径不同</td><td>直接决定排名先后</td></tr>
+<tr><td><strong>全球 ≠ 单厂</strong></td><td>机构数是全球汇总，厂商数是自家</td><td>拿单厂数去驳全球数，等于没驳</td></tr>
+</tbody>
+</table></div>
+
+<p><span class="ev j">判断</span> 但这一节真正要说的是下一句：<em>在这件事上，出货量根本不是信息量最大的那个数——收入结构才是。</em></p>
+
+<p><span class="ev f">事实</span>（当事方口径·单家·三季度）某头部厂商 2025 年 1–9 月人形机器人收入结构：<strong>科研教育 73.60%、商业消费 17.39%、行业应用 9.01%</strong>，其中企业导览占行业应用的 50–70%，<strong>明确用于工业场景的约 1,570 万元，约占人形总收入 2.6%</strong>。</p>
+
+<div class="claim">出货量告诉你造了多少台，收入结构告诉你这些台被拿去干什么。当九成七的钱来自科研、教育、展示与导览时，用出货增速论证"机器人进工厂"，在这一条上直接断掉。</div>
+
+<div class="fix">
+  <span class="lb">一个很容易犯的反向错误</span>
+  <p>发现数字打架之后，最自然的动作是去"验算"，而验算本身也会用错尺子。比如用"厂商公布的累计生产量减去当年出货量"来判断它是否自洽——<strong>这个方法本身不成立</strong>：累计和当年不同期，两个数相减没有意义。</p>
+  <p><em>在做任何减法之前，先确认两个数是不是同一把尺子量出来的。</em>拿错尺子去纠错，得到的只是第二个错误，而且更难被发现——因为它披着"我核过了"的外衣。</p>
+</div>
+
+<h3>现场二 · 中国的机器人密度，一年之内从 470 掉到 166</h3>
+
+<p><span class="ev f">事实</span>（行业协会）IFR《世界机器人 2024》：2023 年中国制造业机器人密度 <strong>470 台/万人，全球第三</strong>，仅次于韩国、新加坡，高于德国（429）与日本（419）。</p>
+
+<p><span class="ev f">事实</span>（行业协会）IFR《世界机器人 2025》：2024 年中国 <strong>166 台/万人，全球第 22</strong>。</p>
+
+<p>而同一份报告里，中国的机器人不但没有减少，还在猛增：2024 年新装 29.5 万台、<strong>占全球 54%</strong>，在役存量约 200 万台，<strong>约为第二名日本的 4.5 倍</strong>。</p>
+
+<p><span class="ev i">推断</span> 变的不是分子，是<strong>分母</strong>——IFR 说明该版采用了中国国家统计局更新后的制造业就业人数。分母变大，密度就掉下来了。同一次更新之后的横向比较仍然成立：韩国 1,220 居首、新加坡 818、德国 449、日本 446、美国 307、全球均值 132。</p>
+
+<div class="note">
+  <span class="lb">这条的操作含义</span>
+  <p>排名类指标的第一问永远是：<strong>分母是谁给的、什么时候换过。</strong>一个国家一年之内从第 3 掉到第 22，而现实里什么都没发生。</p>
+  <p>更实际的一条：<em>新版的 166 可以和新版的德国 449 横比，但绝不能和旧版的 470 竖比。</em>把这两个数放进同一张折线图，就会得到一个"中国自动化断崖式倒退"的完全错误的故事——而这种图在网上并不少见。</p>
+</div>
+
+<h3>现场三 · 农用无人机的"亩"和"亩次"</h3>
+
+<p><span class="ev f">事实</span>（监管口径）2026 年 1 月国新办发布会：全国农用无人机保有量超 30 万架，<strong>年作业面积突破 4.6 亿亩</strong>。</p>
+
+<p><span class="ev f">事实</span>（监管口径）2025 年 12 月发布会：截至 2025 年 11 月底，农用无人机保有量超 30 万架，<strong>作业面积超 30 亿亩次</strong>。</p>
+
+<p><span class="ev f">事实</span>（行业白皮书与行业统计）2024 年中国农业无人机年作业量突破 <strong>26 亿亩次</strong>，带动近 50 万人从事飞防服务，形成约 <strong>130 亿元</strong>的飞防服务市场；另一口径为 2024 年在册植保无人飞机 25.1 万架、防治作业 26.7 亿亩次，同比约 +25%。</p>
+
+<p><span class="ev i">推断</span> 4.6 亿和 30 亿不矛盾：<strong>"亩"量的是地，"亩次"量的是活。</strong>同一块地一季打三遍药，是 1 亩、3 亩次。前者是覆盖面，后者是工作量。</p>
+
+<div class="claim">凡是带"次""人次""架次""台次"的单位，都是工作量口径——它可以在覆盖面一亩不涨的情况下翻倍，只要频次涨了。看到漂亮的增长率，先问它涨的是覆盖面还是频次。</div>
+
+<h3>这三个现场共用的一张检查表</h3>
+
+<div class="tw"><table>
+<thead><tr><th>问</th><th>要确认的东西</th></tr></thead>
+<tbody>
+<tr><td>① 分子是什么</td><td>下线 / 出货 / 在役 / 累计 / 当年 / 纯品类 / 含衍生</td></tr>
+<tr><td>② 分母是谁给的</td><td>有没有换过口径、换过之后能不能和历史值竖比</td></tr>
+<tr><td>③ 单位里有没有"次"</td><td>有"次"就是工作量，没"次"通常是存量或覆盖面</td></tr>
+<tr><td>④ 谁在说</td><td>监管数据 / 同行评审 / 第三方估算 / 当事方口径 / 媒体转述——本书每个数字都标了这一项，就是为了这一步</td></tr>
+<tr><td>⑤ 它回答的是哪个问题</td><td>很多数字是真的，但它回答的不是你要问的那个问题（出货量 vs 收入结构就是最典型的一例）</td></tr>
+</tbody>
+</table></div>
+
+<div class="claim">产业分析里绝大多数错误不是算错，是拿两把不同的尺子相减。</div>
+
+<h2><span class="num">第三节 · 宏观约束</span>电力、芯片、开放性，各自卡在哪一端</h2>
+
+<p>这三个宏观因素经常被打包成一句"AI 的瓶颈"，但它们卡的<strong>不是同一端</strong>。分不清这一点，会在拐点上判断反向。</p>
+
+<div class="claim">电力和芯片主要约束上游——造模型；真正约束下游——用模型做物理世界的事——的是接口开放性。而下游才是这条主线。</div>
+
+<h3>先说清楚：这两年芯片与存储的剧变，属于军备竞赛</h3>
+
+<p>从 2010 到 2024，内存从来不是瓶颈——2G、4G、8G、16G，多数人觉得 4G 以上都是浪费（<em>这是消费端的体感，不是服务器内存与 HBM 的口径</em>）。而大模型时代 64G、128G 甚至 512G 变成必要。<strong>一个十几年没动过的约束，两年之内跨了一个数量级。</strong>这确实是大模型对物质世界最先、最直接的一次改造。</p>
+
+<p><span class="ev f">事实</span> 整条链都在变：全球数据中心用电将从 2025 年 <strong>485 TWh</strong> 增至 2030 年约 <strong>950 TWh</strong>，届时约占全球用电 3%；2025 年数据中心用电增长 17%，AI 专用数据中心增长 <strong>50%</strong>。风冷机房接不上高密度机架；上一代加速器现货租赁价较峰值下跌约七成。</p>
+
+<p><span class="ev i">推断</span> 但这一波需求的驱动力是<strong>竞赛</strong>，不是物理世界在消费大模型。两者几乎是相反的两条曲线：</p>
+
+<div class="tw"><table>
+<thead><tr><th></th><th>竞赛驱动（现在）</th><th>消费驱动（各行各业真用起来时）</th></tr></thead>
+<tbody>
+<tr><td>主要负载</td><td>训练与前沿迭代占资本开支主导（推理量已更大，但驱动扩张的是训练竞赛）</td><td>推理为主，大量在边缘与嵌入式</td></tr>
+<tr><td>硬件特征</td><td>超大显存、高带宽互连、集群、液冷、巨额电力</td><td>小模型、量化、低功耗、<strong>确定性延迟</strong>、成本敏感</td></tr>
+<tr><td>买家结构</td><td>少数几家，高度集中</td><td>极度分散，每台设备一颗</td></tr>
+<tr><td>单位价值</td><td>极高</td><td>低得多</td></tr>
+<tr><td>需求由什么决定</td><td><strong>对手投了多少</strong></td><td><strong>下游真的用了多少</strong></td></tr>
+</tbody>
+</table></div>
+
+<p>机器人本体上需要的是几十瓦级、确定性实时的芯片，不是几百瓦的训练加速器——因为控制分层是硬约束：<strong>关节力控环在千赫兹量级，大模型推理在百毫秒到秒量级</strong>，两层必须解耦。</p>
+
+<p><span class="ev j">判断</span> 所以两个必须记住的推论：<strong>一、不要把芯片、存储、电力、冷却的热潮当成"AI 进入物理世界"的先行指标</strong>——归因错了会在拐点上判断反向。<strong>二、也不要因为它可能降温就低估物理世界的进程</strong>——竞赛塌了，专用自动化该怎么走还怎么走，因为后者的驱动力是产线的账。</p>
+
+<h3>电力：卡造模型，不卡单机用模型</h3>
+
+<p><span class="ev i">推断</span> 一个训练集群的用电以百兆瓦计，一台巡检机器人的功耗以百瓦计——<strong>差六个数量级。</strong>电力紧张会推迟前沿模型的迭代速度，不会推迟机器人进工厂。</p>
+
+<p>所以电力这条约束的正确读法是：<em>它决定"下一代模型什么时候出来"，不决定"现有模型什么时候被用起来"。</em>而物理世界用的模型可以落后一到两代，够用。</p>
+
+<h3>芯片：卡的是能力上限，不是部署速度</h3>
+
+<p><span class="ev i">推断</span> 高端加速器的获取限制，直接影响的是训练前沿模型的能力天花板。而物理世界的部署侧要的是车规级、工业级的控制器、SoC 与边缘推理芯片——<strong>这一类的国产化程度高得多，也不在最严的管制核心。</strong></p>
+
+<div class="claim">卡脖子卡的是"追前沿"，不是"用现成的做物理落地"。这是中国在这条主线上被低估的一个结构性优势。</div>
+
+<p><span class="ev j">判断</span> 但要留一个口子：如果通用接触操作最终必须依赖持续的大规模训练（而不是一次训练多年可用），那么芯片约束会从上游传导到下游。<em>这是本书最需要盯的一个假设，也写进了第十四节的证伪条件。</em></p>
+
+<h3>开放性：这才是真正卡下游的那一条</h3>
+
+<p>"开放性"在这条线上有三层，影响完全不同：</p>
+
+<div class="tw"><table>
+<thead><tr><th>层</th><th>现状</th><th>对物理世界的影响</th></tr></thead>
+<tbody>
+<tr><td><strong>模型开放性</strong><br>开源权重与成本</td><td><span class="ev f">事实</span> 公开基准上最强开源与最强闭源分差约 3 分；开源单位成本约为闭源的十分之一到三十分之一；开源推理价格每年下降 30–50%</td><td><span class="lv l">已解决</span> 中小玩家用得起了。物理世界的应用方<strong>不需要前沿模型</strong></td></tr>
+<tr><td><strong>接口开放性</strong><br>控制器、总线、工装、末端执行器</td><td>高度专有。控制器、编程语言与接口跨品牌不通；改控制器可能使原认证与保修失效</td><td><span class="lv h">最硬的约束</span> 它直接决定集成成本、改造成本、以及"换脑"能不能成立</td></tr>
+<tr><td><strong>数据与部署的开放性</strong><br>跨境数据、跨境部署</td><td>受各国数据驻留与出口管制约束；<em>海外建机房不能自动绕开——管制同时约束目的地、最终用户与最终用途</em></td><td><span class="lv m">中</span> 影响的是谁能服务谁，不太影响国内自己的部署</td></tr>
+</tbody>
+</table></div>
+
+<p><span class="ev i">推断</span> 三层里，<strong>模型开放性已经不是问题，数据开放性主要影响跨境生意，而接口开放性是真正卡住物理世界深度的那一条</strong>——它决定一套方案能不能从第二个客户复制到第十个客户。</p>
+
+<p><span class="ev j">判断</span> 这里要修正一个常见的类比误用。半导体产业能一边狂奔一边成为生产力，靠的是分层抽象与兼容承诺——但<strong>那个被冻结的界面是买方工作负载与芯片之间的合同</strong>。而物理部署的相关界面是<strong>工作单元</strong>：末端执行器、料箱、工装、总线、安全区。<em>那一层根本没有冻结，形态多样性还在增加。</em></p>
+
+<div class="claim">物理世界的"平缓"不会以模型排行榜稳定的形式到来，会以工作单元接口标准化的形式到来。该盯的是接口标准和安全区规范，不是榜单。</div>
+
+
+<h4>案例 · 集装箱：一次接口冻结，改变了全球的地理</h4>
+
+<p>要理解"接口冻结"能值多少钱，最干净的样本不在半导体，在码头。</p>
+
+<p><span class="ev f">事实</span>（学术著作与经济史研究）1956 年 4 月 26 日，一艘改装油轮从新泽西出发，甲板上载着 58 个标准箱。在那之前，散杂货靠码头工人一件一件装卸，装船成本约 <strong>5.86 美元／吨</strong>；用集装箱之后降到约 <strong>0.16 美元／吨</strong>，降幅约 97%。此后 <strong>1968 年 1 月，ISO 668 冻结了箱体的尺寸、术语与额定值</strong>；同年另一项标准冻结了箱体编号规则。1966 年只有约 1% 的国家有集装箱港口，到 1983 年这一比例升至约 90%。</p>
+
+<p><span class="ev i">推断</span> 注意这里发生的事情的<strong>次序</strong>：先有一个能用的机械方案（箱子、吊具、角件），然后是<strong>尺寸被冻结</strong>，最后才是港口敢投巨资去建只服务这一种形状的桥吊、堆场与船。<em>标准冻结之前，没有人敢为一种私有形状建一座码头。</em></p>
+
+<div class="claim">集装箱真正的发明不是那个铁盒子，是"所有人同意用同一个铁盒子"。港口自动化、船舶大型化、全球供应链——全部是这次冻结之后才可能存在的东西。</div>
+
+<p><span class="ev j">判断</span> 把它平移到本书的主线：今天物理 AI 缺的不是"箱子"，是<strong>那次冻结</strong>。末端执行器、料箱、工装、总线、安全区——这一层每家一个样。所以真正值得盯的行业事件，不是哪个模型又刷新了榜单，而是<em>哪一天开始，有人为"工作单元"这一层定下了尺寸、接口与验收方法，并且被多家采购方同时写进招标文件。</em>那一天才是这条主线的 1968 年。</p>
+
+<p>顺带一个提醒：集装箱的收益不是均匀分配的。它让传统港口城市大批衰落、让新的深水港崛起，码头工人的雇佣结构被整体改写。<strong>接口标准化从来不是一次温和的技术升级，它重排的是整个食物链的位置。</strong></p>
+
+<h3>数据与能力：物理世界没有互联网可捡</h3>
+
+<p>这是决定第三段能走多快的那条约束，也是外部研究共识最集中的地方。</p>
+
+<p><span class="ev f">事实</span>（学术综述，2026-04）三条瓶颈被反复指认：<strong>数据稀缺</strong>——目前最大的机器人数据集约 100 万条轨迹，与语言模型语料相比差约 <strong>2000 倍</strong>；<strong>现实差距</strong>——即便有域随机化与真实到仿真的标定，仿真训练出的策略在接触密集场景仍需大量适配；<strong>安全保证</strong>——具身基础模型缺少监管框架所要求的可审计安全案例，持续证据生成的工具链尚不成熟。</p>
+
+<p><span class="ev f">事实</span>（第三方估算·投行研究）仿真与现实的落差有一个被反复转引的口碑量级：<strong>仿真环境中 80%–90% 的准确率，在真实场景往往显著下降。</strong>常被引用的说法是"跌至 50% 以下"，但它来自转引而非可复核实验，<em>只用它的方向，不用这个点值</em>。</p>
+
+<div class="claim">这解释了为什么"改环境"始终是最有效的杠杆：把场景改简单，等于把长尾裁掉，也就把仿真与现实的落差压小。</div>
+
+<h4>算力在机身上的真实约束，有一个很硬的数字</h4>
+
+<p><span class="ev f">事实</span>（第三方估算·特定模型在特定边缘平台上的工程点测，不是通用上限）视觉-语言模型在当前主流边缘计算平台上仅能跑到 <strong>0.1–0.4 FPS</strong>，而实时感知的最低要求约为 <strong>10 FPS</strong>——相差一到两个数量级。工程上的通行解法是分层：<strong>轻量检测模型跑快环（约 100 FPS 量级），视觉-语言模型只做异步推理与总结。</strong></p>
+
+<p><span class="ev i">推断</span> 这就是控制分层的具体形态，也再次说明<em>机身要的是确定性和低延迟，不是峰值算力</em>。同时它意味着：<strong>"把大模型装进机器人"在今天的字面意义上做不到</strong>，能做的是让大模型在慢环上做规划，快环仍归经典方法。</p>
+
+<h4>数据这一层正在出现三个变化</h4>
+
+<div class="tw"><table>
+<thead><tr><th>变化</th><th>内容</th><th>意义</th></tr></thead>
+<tbody>
+<tr><td><strong>采集方式变便宜</strong></td><td>手持夹具式的通用操作接口成为第四条数据路径，采集速度约为传统遥操作的 <strong>3 倍</strong>，成本下降约 <strong>80%</strong></td><td>把数据成本从项目级压向消费级，是缓解稀缺的最现实一条</td></tr>
+<tr><td><strong>训练范式转向隐式</strong></td><td>不预测完整画面、只建模必要状态变化。有团队给出的对比是：同样 50 小时数据，显式路线约需 4000 GPU 小时，隐式路线约为其 <strong>八十分之一</strong></td><td>成本效率决定这条线能不能规模化</td></tr>
+<tr><td><strong>量不等于质</strong></td><td>有团队采集 10 万小时人类数据，最终只筛出约 <strong>5400 小时</strong>真机等效数据用于训练</td><td>"缺数据"这个说法要改成"缺可用数据"</td></tr>
+</tbody>
+</table></div>
+
+<p><span class="ev f">事实</span>（第三方估算·单篇首次报告，尚未见复现）另有一个值得盯的门槛：有研究首次报告具身模型可能存在类似语言模型的<strong>参数激活效应，临界规模约 7B</strong>，而当前主流商用模型普遍在 4B 左右。<span class="ev j">判断</span> 若这个门槛被更多工作复现，说明具身模型的规模化收益<em>才刚刚开始</em>——那会显著加快第三段的节奏，也是本书证伪条件里"能力缺口移动得比预计快"的一个具体触发点。</p>
+
+<p class="src">口径提醒：上述数字来自学术综述、投行研究与产业访谈，属第三方估算与当事方口径，不是监管数据。<strong>"2000 倍"是同模态内（轨迹 vs 语料）的量级对比，比跨模态相减站得住，但仍应当作量级而非精确值。</strong></p>
+
+
+<h3>存储：物理世界会打断"数据爆炸＝存储爆炸"这条链</h3>
+
+<p><span class="ev f">事实</span> 两路 1080p、30 帧的<strong>未压缩</strong> RGB 约为 373 MB/秒，即约 <strong>22 GB/分钟</strong>；数百兆每分钟对应的是压缩流。常见的工程坑是产线网络原本为控制器通信设计，带不动多路视频加本体感知。</p>
+
+<p><span class="ev i">推断</span> 这个量级本身就说明结论：<strong>绝大部分物理数据会被就地丢弃</strong>——存不起，也没价值。真正入库的是异常样本、被标注的片段与复盘用的关键时段。<em>物理世界的数据是「流」不是「库」。</em></p>
+
+<p class="src">内存瓶颈的口径也要收窄：本地、小批量的生成阶段更受容量与带宽约束，但预填充阶段通常是计算密集的；大批量、长上下文、混合专家架构与跨卡通信都可能让瓶颈回到算力或互连。<strong>不能推出"未来终端只看带宽不看算力"。</strong></p>
+
+<h3>那"通用可折旧资源未来还需不需要"</h3>
+
+<p><span class="ev j">判断</span> 分开看：<strong>内存与存储更接近铁轨</strong>——需求由数据总量与模型规模驱动，退出成本低、转售市场成熟、贬值平缓，而且消费驱动阶段仍然需要（只是形态变小变散）。<strong>加速器不是</strong>——代际短、耗电、与软件栈耦合，且下一代功率密度可能让承载它的机房接不上。</p>
+
+<p>这也是为什么"泡沫破了会留下基建"这句安慰只对一半：<em>变压器、配电、冷却管路像铁轨，加速器不像。</em>真正会沉淀下来的是前者。</p>
+
+
+<h2><span class="num">第四节 · 中国</span>国情与体制怎么改变这张表</h2>
+
+<p>前面盘点表里的每一行，在中国都有不同的约束排序。这一节讲三处最关键的差别——<strong>用美国的表量中国会量错，但要说"方向相反"，证据只支持程度差异与排序不同。</strong></p>
+
+<h3>差别一：电力约束是换位，不是消失</h3>
+
+<div class="two">
+  <div>
+    <div class="h">美国</div>
+    <p><span class="ev f">事实</span> 大型电力变压器交货约 <strong>128 周</strong>，发电机升压变压器 2026 年一季度已超 <strong>160 周</strong>；价格较 2019 年 +77%；约 <strong>80%</strong> 依赖进口，专用取向硅钢国内仅一家生产商。输电接入队列 <strong>2,060 GW</strong>，2025 年建成项目从申请到商运中位数超 5 年，历史上进入队列的容量约 <strong>13%</strong> 最终投运。</p>
+    <p class="src">口径关键：该队列<strong>只统计发电与储能接入，不含负荷接入</strong>——数据中心作为新负荷在这些数字里不出现。</p>
+  </div>
+  <div>
+    <div class="h">中国</div>
+    <p><span class="ev f">事实</span>（监管口径）2025 年全国<strong>算力中心</strong>总用电量 <strong>1,700 亿千瓦时（＝170 TWh），占全社会用电量 1.6%</strong>；全国一体化算力网八大枢纽节点的算力用电成为增量主力，<strong>近三年平均增长率约 39.5%</strong>；官方预计"十五五"期间算力用电年均新增 1,000 亿千瓦时以上，<strong>2030 年约 8,000 亿千瓦时、占全社会用电 6% 左右</strong>。<span class="ev f">事实</span>（研究机构口径）另有<strong>数据中心</strong>口径为 2025 年 1,960 亿千瓦时、同比 <strong>+18.1%</strong>。<em>两个口径范围不同，引用时须注明用的是哪一个。</em>「算电协同」已写入 2026 年政府工作报告与"十五五"规划纲要；枢纽节点新建数据中心绿电占比部分已超 80%。</p>
+    <p><span class="ev i">推断</span> 中国在新增发电、电网建设与设备供应上相对更有优势，但约束<strong>从"装机不够"换成了"东部能耗指标、绿电比例、配电容量、土地与时间"</strong>，且是区域性的。<em>芯片紧，不推出电松。</em></p>
+  </div>
+</div>
+
+<h3>差别二：风险对冲的形式不同，但是同一件事</h3>
+
+<p><span class="ev j">判断</span> 招标验收与保险不是两条相反的路，它们处在不同环节：<strong>招标规范解决准入、验收解决交付确认、保险解决损失分摊、认证解决技术合规、产品责任解决事故后归属。</strong>不能互相替代。</p>
+
+<p><span class="ev i">推断</span> 但换个角度，两边是<strong>同一件事的两种形态</strong>：美国靠保险市场为这个方向做风险对冲，中国靠大型采购方用自己的资产负债表做对冲。<em>一次性规划采购八千多台设备，本质就是一个有资源的主体愿意为这个方向的失败兜底</em>——这和保险公司敢出保单，是同一个信号的两种形式。</p>
+
+<p><strong>操作含义很直接：在国内盯保险产品会长期空转，该盯的是大型采购方的承担规模、招标文件的技术规范与验收条款。</strong></p>
+
+<p class="src">但要守住边界：采购方承担运营责任，制造商与集成商仍承担质量、违约和产品责任；重大事故责任不因验收完成而消失。"需求方自己写规范、自己验收、自己承接全部责任"是不准确的。</p>
+
+<h3>差别三：中国手上有全世界最大的一笔存量</h3>
+
+<p><span class="ev f">事实</span> IFR《World Robotics 2025》：2024 年全球新装工业机器人 54.2 万台，中国 <strong>29.5 万台占 54%</strong>（美国 3.42 万、日本 4.45 万、德国 2.7 万）；中国在役存量 <strong>202.7 万台</strong>（全球 466.4 万台），三年翻一倍；本土厂商国内份额首次超过外资达 <strong>57%</strong>；通用工业领域份额从 2020 年 38% 升至 2024 年 53%；2024 年电子电气行业装机 8.3 万台，已超过汽车行业的 5.72 万台。</p>
+
+<p class="src">口径注意：IFR 的"在役存量"是<strong>按安装量累计并假定平均寿命（历史方法约 12 年）估算</strong>的，不是逐台核验的可改造设备清单。</p>
+
+<p><span class="ev j">判断</span> 这个存量意味着两件事：<strong>维保需求是确定的</strong>（这批设备要修、要换件、要有人会修）；<strong>但"给存量臂换脑"是不是三年主路径，证据不足。</strong>八条障碍：控制器、编程语言与接口高度专有；老设备可能没有力控、触觉、视觉和足够通信接口；改控制器可能使原认证、原厂支持与保修失效，整条工作单元要重做风险评估；稳定重复工序已被传统程序解决得很好；真正需要柔性的任务往往还要换末端执行器、夹具、传感器、料箱和安全区，最后仍会变成工作单元改造；型号、年代、行业高度异质；停线集成与重新验证的成本可能让新购专机更便宜；跨本体策略仍需标定与本体适配，<strong>并没有绕开动作数据瓶颈</strong>。</p>
+
+
+<h4>案例 · 同一种机器人，汽车用了四十年，3C 用了十年</h4>
+
+<p>如果"技术成熟"就能决定普及，那么工业机器人应该在所有制造业里同步铺开。事实完全不是这样。</p>
+
+<p><span class="ev f">事实</span>（行业协会与券商研究）中国工业机器人的需求结构在六年里翻了个个儿：2016 到 2021 年，<strong>汽车行业占比从 38% 降到 23.2%，电气／电子行业从 21.0% 升到 33.0%</strong>；到 2024 年，<strong>电子电气行业新装 8.3 万台，已超过汽车行业的 5.72 万台</strong>。而在全球范围内，汽车产线用机器人从上世纪六七十年代就开始了，3C 电子的大规模上机器人是最近十来年的事。</p>
+
+<p><span class="ev i">推断</span> 用第一节那几条判据拆，两个行业的差别一目了然：</p>
+
+<div class="tw"><table>
+<thead><tr><th>判据</th><th>汽车（早四十年）</th><th>3C 电子（晚四十年）</th></tr></thead>
+<tbody>
+<tr><td>环境可改造</td><td>整条产线为机器人重新设计，夹具、工装、节拍全部配合</td><td>产品三个月一改款，产线要跟着改——<strong>可改造，但改造的寿命极短</strong></td></tr>
+<tr><td>重复次数</td><td>同一款车型几十万台，调试成本摊得掉</td><td>单机型量大但生命周期短，摊销窗口只有几个月</td></tr>
+<tr><td>零件特征</td><td>大、重、刚性、位置确定</td><td>小、轻、易损、常需柔性接触与视觉定位</td></tr>
+<tr><td>触发条件</td><td>人力成本与质量一致性</td><td><strong>等到机器视觉便宜到能装在每个工位上</strong>，这一档才打开</td></tr>
+</tbody>
+</table></div>
+
+<div class="claim">同一种机器人，在两个行业之间差了四十年——差的不是机器人，是这两个行业各自什么时候满足了那几条落地条件。这就是为什么"技术已经成熟"这句话对判断进度几乎没有信息量：成熟的是技术，没成熟的是场景的条件。</div>
+
+<p><span class="ev j">判断</span> 这条对当下最直接的推论：今天问"具身智能什么时候普及"，正确的问法是"<em>哪个行业会先满足这几条</em>"。而按上表的逻辑，最可能先满足的，是那些已经为上一代自动化改造过环境、且产品生命周期长的行业——它们已经把最贵的那笔账付过一次了。</p>
+
+<h3>第三方参照：日本和德国，两条都不像中国的路</h3>
+
+<p>只拿美国量中国，容易得出"两条路"的错觉。加上日德两个参照，会看到实际上至少有四种解法。</p>
+
+<p><span class="ev f">事实</span>（行业协会）2024 年制造业机器人密度：韩国 <strong>1,220</strong> 台/万人居首，新加坡 818，德国 449，日本 446，美国 307，中国 166（该值采用更新后的就业口径，见前面的口径课），全球均值 132。西欧整体 267，北美 204，亚洲 131。</p>
+
+<div class="tw"><table>
+<thead><tr><th></th><th>特征</th><th>它解决"谁兜底"的方式</th></tr></thead>
+<tbody>
+<tr><td><strong>美国</strong></td><td>保险市场发达，责任可定价、可转移</td><td>保险与产品责任<strong>把风险变成一个价格</strong></td></tr>
+<tr><td><strong>德国</strong></td><td>密度高但增速平缓；强职业教育体系、工会深度参与、工作单元与安全规范高度标准化</td><td>靠<strong>规范与流程</strong>把风险压到可接受，再由制度化的劳资协商决定改造节奏</td></tr>
+<tr><td><strong>日本</strong></td><td>密度相近但结构不同：本身是机器人制造国，长期雇佣使"替代人"不是主要动机</td><td>把机器人定位为<strong>补人手不足</strong>（老龄化），冲突小、推进稳、但也因此不追求无人化</td></tr>
+<tr><td><strong>中国</strong></td><td>存量与新装全球第一，密度按新口径仍在中游；本土厂商份额首破 57%</td><td>靠<strong>大型采购方的资产负债表</strong>与规模摊薄成本（见前一节）</td></tr>
+</tbody>
+</table></div>
+
+<p><span class="ev i">推断</span> 四条路给出的不是优劣排序，是一个更有用的结论：<em>"谁为失败兜底"这个问题在每个经济体里都有答案，但答案的形式完全不同——价格、规范、雇佣关系、资产负债表。</em>照搬任何一种的观察方法，都会在另一处失灵。在国内盯保费会长期空转，在德国盯采购方的资产负债表同样会空转——那里该盯的是行业规范与安全标准的修订。</p>
+
+<p><span class="ev j">判断</span> 还有一条容易被忽略的：<strong>日本的高密度不是靠"替代"堆出来的，是靠"补缺"。</strong>这对中国接下来十年更有参照意义——真正的驱动力往往不是"人干得不够好"，是"招不到人"。判断一个自动化项目能不能成，先问它替的是<em>不想干的岗位</em>还是<em>正在干的人</em>；前者阻力小得多，也更容易走到 D4。</p>
+
+<h3>体制的作用：改变需求侧，不改变能力侧</h3>
+
+<p><span class="ev j">判断</span> 大规模统一采购能做的，是<em>在技术尚未成熟、单位经济尚未跑通时先把需求组织出来</em>，用规模摊薄成本、拉动国产替代。光伏、动力电池、电动车走过同一条路径：定向采购形成需求 → 规模摊薄成本 → 国产化率上升 → 转向出口。</p>
+
+<div class="claim">它能压缩成本曲线和产业化时间，不能压缩物理规律和数据积累。接触操作的可靠性、真实场景的长尾、维修网络的密度，这些买不来也批不出来。</div>
+
+<p><span class="ev i">推断</span> 所以中国这条线该盯的四个东西是：<strong>①厂商收入结构里"明确工业生产"那一项的占比曲线</strong>（某头部厂商 2025 年 1–9 月约 2.6%——<em>这是那一家、那三个季度的读数，不是行业值；有意义的是曲线的方向，不是这个点</em>）；<strong>②核心零部件国产化率与交货期</strong>（减速器、丝杠、编码器、力／触觉传感器）；<strong>③中标价与验收条款</strong>，不是保费；<strong>④同一客户同一用途的重复采购</strong>。</p>
+
+<h2><span class="num">第五节 · 样本</span>六个能看清机制的深挖</h2>
+
+<p>盘点表给的是位置，这一节给的是机制。六个样本各自暴露一条不同的约束：<strong>自动驾驶暴露对冲、外科暴露伦理与验证、农业暴露环境改造与频次、教育暴露"该培养什么人"、形态暴露"以什么身体进"、晶圆厂则给出一个已经走到头的参照——D4 到底长什么样。</strong></p>
+<h3>开场案例 · ATM 与柜员：一台机器替掉了动作，没替掉那个人</h3>
+
+<p>正式进入六个样本之前，先讲一个四十年前的实验——它不在物理 AI 的范围里，但<strong>后面有三个样本都要回头引用它</strong>，因为它把"替代"这件事拆成了两段，而多数讨论只看见第一段。</p>
+
+<p><span class="ev f">事实</span>（学术研究的二手汇总，非单一权威统计）美国的 ATM 从 1980 年代的数万台增至 2010 年前后的约 40 万台，而同期银行柜员人数<strong>不降反升</strong>：常被引用的量级是从二三十万增长到接近六十万。<em>各家引用的绝对数有出入（口径与年份不同），但方向一致，本书只用方向不用点值。</em><strong>柜员数量真正开始持续下降是在 2010 年代，而推倒它的不是 ATM，是手机银行。</strong></p>
+
+<p><span class="ev i">推断</span> 机制是清楚的，而且完全可以复用：ATM 把取现这个<strong>动作</strong>接走了，单个网点需要的柜员人数明显下降；<em>但网点的运营成本因此下降，银行于是开了更多网点</em>；网点变多，柜员总数反而上升；同时柜员的工作内容从数钞票变成了销售与关系维护。</p>
+
+<div class="claim">自动化降低的是"每个网点需要多少人"，不是"这个行业需要多少人"。后者取决于成本下降之后，这门生意会不会因此变大。这两个问题被混为一谈，是"机器换人"类讨论里最常见的错误。</div>
+
+<p><span class="ev j">判断</span> 但真正该记住的是结局的那一半：<strong>柜员最终还是减少了，只不过动手的不是那台机器。</strong>ATM 改变的是"办同一件事用什么工具"，手机银行改变的是"还需不需要来这一趟"。<em>前者是效率替代，后者是需求消失。</em>——对照本书的主线：物理世界里真正的大规模替代，往往也不是某台机器变强了，而是整件事被重新组织，以至于原来那个环节不再需要发生。</p>
+
+<p>这条对个人决策的含义写在第十三节，这里只留一句判据：<em>判断自己的位置安不安全，别问"机器能不能干我这一段"，问"这件事还需不需要以现在这个形式发生"。</em></p>
+
+<p class="src">下面六个样本里，<strong>样本二（外科）、样本四（教育）、样本五（形态）都会回到这两段式</strong>——遇到时可以翻回这一页。</p>
+
+
+
+<h3>样本一 · 自动驾驶：唯一走完对冲切换的那个</h3>
+
+<p>它对主线的价值不在于跑了多少里程，而在于：<strong>这是目前唯一一个把责任容器整个换掉、并且换成功了的物理场景。</strong>其余三个进程都还没走到这一步。</p>
+
+<h4>它证明了什么</h4>
+
+<p><span class="ev f">事实</span>（当事方口径与多方汇总）截至 2026 年 8 月，在 11 个美国都会区提供公共全无人服务，车队约 3,500 辆，约 50 万次/周付费出行，约 400 万英里/周，累计付费行程超 2,000 万次。截至 2026 年 3 月累计超 <strong>2.20 亿</strong>全无人英里，严重伤亡较人类基准约低 <strong>92%–94%</strong>——<em>这是运营方自己的对照，方法上有争议（地理围栏、碰撞类型结构与人类不同）。</em>作为对照，另一家的同类服务在 7 个都会区约 44 辆车（带安全员）；中国有多家在 10 个以上城市运营，规模在千辆级。</p>
+
+<div class="claim">车里没有持证司机。驾驶动作被抽走的同时，驾驶责任也被抽走了——它进了公司运营责任与商业保险。</div>
+
+<p><span class="ev i">推断</span> 这是本书最重要的一个机制样本：<strong>物理世界的替代，往往不是等能力够了，是等容器换掉了。</strong>而且换容器的前提是三件事同时成立——作业域可圈定（地理围栏＋高精地图）、失败率可精算（两亿英里的统计基础）、重复次数足够大（保险才有分母）。</p>
+
+<h4>它还没证明什么</h4>
+
+<p><span class="ev f">事实</span> 周订单量在 2026 年上半年多次披露走平，而车队仍在扩张——<strong>单车利用率在下降</strong>。其所属分部单季经营亏损以十亿美元计。</p>
+
+<p><span class="ev j">判断</span> 所以它是<strong>成形但未闭合</strong>：机制跑通了，单位经济没跑通。这正是要等的读数——按城市披露的付费在役车辆、载客里程与空驶里程能算出正毛利。<em>在那之前，它证明的是"可以做"，不是"划算"。</em></p>
+
+<h4>一个被忽略的分岔：改世界，还是让机器适应世界</h4>
+
+<p><span class="ev i">推断</span> 两条技术路线其实是第一节"环境可改造"这条判据的两种答案：<strong>高精地图＋激光雷达＝把世界测绘成机器可读</strong>（改世界）；<strong>纯视觉泛化＝让机器适应未经改造的世界</strong>（改机器）。</p>
+
+<p>目前跑在最前面的是改世界那条——代价是<strong>每进一个新城仍需数个季度的工程投入</strong>。<span class="ev j">判断</span> 这句话翻译成主线的语言就是：<em>可迁移性尚未解决，它仍然是"一城一专机"的变体。</em>这也是为什么它不能与"改环境的专用机器"或"通用接触操作"合并——机制不同，成本结构不同，闸门也不同。</p>
+
+<h4>终局：什么时候会禁止人类驾驶</h4>
+
+<p>这个问题值得单独想，因为它定义了这一类的"闭合"。</p>
+
+<p><span class="ev i">推断</span> 驾驶与其他自动化场景有一个结构性差别：<strong>它是紧耦合的共享网络。</strong>所有人实时占用同一张物理网，任何一个参与者的行为都给其他所有人施加成本。在这种系统里，"不值得"不足以完成替代——残留的人类驾驶员不只是带来自己那一份风险，他<strong>按住了整个系统的天花板</strong>：只要路网上还随机分布着少量人类驾驶员，自动车队就必须保持全套防御性设计，收不到跟车距离压缩、路口时隙穿插这些真正的收益。</p>
+
+<div class="claim">这类系统的混合态可能比任何一个纯态都差——残留的人类驾驶员把全路网的收益锁死。但由此推不出"必然靠一纸禁令切换"：<strong>更可辩护的路径是分层退出＋保费定价</strong>。一次性协调问题（如变更行驶方向）与持续的安全与责任问题，不是同一类问题，别拿前者的历史直接套后者。</div>
+
+<p><span class="ev j">判断</span> 但真实形态大概率不是一纸禁令，而是<strong>分层退出＋保险定价</strong>：先是专用道，再是城市核心区，再是特定时段，最后人类驾驶退到郊外和赛道。而在美国这类以保险定价为主的体系里，把人赶下驾驶座的更可能不是法条，是<strong>保费</strong>——当人类驾驶的费率高到普通人开不起，法律上的"允许"就没有意义了。保险公司比立法机构早很多年动手，且不需要投票。</p>
+
+<p>所以这条线上更早、更可观察的信号是：<strong>人类驾驶的保费第一次系统性高于自动驾驶的那一年。</strong>禁令是它的追认。</p>
+
+<h4>还有一个反例值得留着</h4>
+
+<p><span class="ev j">判断</span> 民航的自动化程度远超汽车、环境受控得多、参与者全部持证同质，<strong>却从未禁止人类驾驶，反而强制要求人在场。</strong>原因有两个，都直接打在"系统对齐"这个论证上：</p>
+
+<ul>
+<li><strong>共模故障。</strong>当所有车跑同一套或少数几套软件，人类驾驶员的多样性消失了。人类平均更差，但他们的错误<em>互不相关</em>；软件的错误相关。一个缺陷、一次错误的推送、一次地图污染，可以同时命中全网。<strong>绝对对齐买来的是平均安全，卖掉的是尾部安全。</strong></li>
+<li><strong>责任仍需一个人接。</strong>留着飞行员，有一部分原因是留着一个可以归责的对象——又回到容器问题。</li>
+</ul>
+
+<p>公平地说，两者经济学相反：飞行员成本摊到每张机票上很小，司机成本在运输里占大头；民航单次事故是几百人，汽车是个位数。<em>所以汽车未必跟着民航走。</em>但这个反例足以说明：<strong>"技术成熟就会禁止人类"不是自动成立的推论。</strong></p>
+
+
+<h3>样本二 · 外科：什么时候机器能替代人主刀</h3>
+
+<p>这是物理世界里最难的一格，也是最值得单独拆的一个问题——因为它把四条落地条件全部推到极限。</p>
+
+<h4>先看清楚现在到了哪一级</h4>
+
+<p><span class="ev f">事实</span>（同行评审）手术机器人的自主性分级（Yang 等 2017 年提出的六级框架，已被后续文献广泛沿用）：</p>
+
+<div class="tw"><table>
+<thead><tr><th>级别</th><th>含义</th><th>现状</th></tr></thead>
+<tbody>
+<tr><td><strong>L0</strong></td><td>透明遥操作：器械精确复现术者动作，无任何自主</td><td>达芬奇类系统 2000 年确立的范式，<strong>今天绝大多数"机器人手术"仍在这一级</strong></td></tr>
+<tr><td><strong>L1–L2</strong></td><td>机器人辅助 / 任务级自主：提供约束、稳定或按术前计划执行特定动作</td><td>骨科导航、放射外科已成熟</td></tr>
+<tr><td><strong>L3</strong></td><td>有条件自主：机器自主执行子步骤，人监督并逐步批准</td><td>已有研究系统实现：2016 年首次自主肠吻合（活体动物、监督式）、2020 年首次自主腹腔镜手术；按术前计划的骨科钻孔、自主植发、自主采血属于此级</td></tr>
+<tr><td><strong>L4</strong></td><td>高度自主：机器在人监督下完成完整术式</td><td>未在人体临床实现</td></tr>
+<tr><td><strong>L5</strong></td><td>完全自主：无需人类</td><td><strong>尚无任何系统达到</strong></td></tr>
+</tbody>
+</table></div>
+
+<div class="claim">最能说明问题的一条事实：遥操作手术机器人普及了二十多年，显著增加了微创手术的数量，但并没有降低并发症率。</div>
+
+<p><span class="ev i">推断</span> 这说明今天的"机器人手术"主要是<strong>人的手的延伸</strong>——它改变的是入路和创伤，不是决策与判断。<em>所以"外科被机器人替代"这件事，进度条几乎还没起步，而不是走了一半。</em>但要注意：它<strong>早就进了物理世界</strong>，只是深度停在 L0–L2；进度条量的是深度，不是有没有进门。</p>
+
+<h4>用四条判据拆开：卡在哪</h4>
+
+<div class="tw"><table>
+<thead><tr><th>判据</th><th>外科的取值</th><th>后果</th></tr></thead>
+<tbody>
+<tr><td>错误的期望损失</td><td>不可逆、损失极大、发现时点可能延迟数天</td><td>容错窗口接近零</td></tr>
+<tr><td>成功便宜可测</td><td>手术是否成功要看数周到数年的转归；术中只能测替代指标</td><td><strong>学习回路极慢</strong>——每一次迭代的反馈周期以月计</td></tr>
+<tr><td>环境可改造</td><td>手术室可以改，<strong>但人体不能改</strong></td><td>这是农业和工厂都有、而外科没有的那张牌</td></tr>
+<tr><td>风险对冲</td><td>目前只有主刀个人与医院承担；尚无面向自主手术的承保产品或赔付池</td><td><strong>限制的是深度</strong>：低风险子步骤照走不误，无人监督的完整术式走不了</td></tr>
+<tr><td>尾部失败率</td><td>软组织形变、出血、烟雾遮挡、解剖变异——全是分布外场景</td><td><strong>刚性结构 vs 软组织，是全领域最清晰的分水岭</strong></td></tr>
+</tbody>
+</table></div>
+
+<p><span class="ev f">事实</span> 文献给出的判断很一致：涉及<strong>刚性结构</strong>（骨科）、<strong>按术前计划的非侵入能量投送</strong>（放射外科）、或<strong>结构化子步骤</strong>（监督下的吻合）的任务，最有可能在近期达到 L3–L4；而涉及复杂、不可预测的软组织交互——尤其伴随形变、出血、烟雾造成的感知困难——仍需持续的人类监督。</p>
+
+<h4>那"什么时候"</h4>
+
+<p><span class="ev j">判断</span> 我不给年份，给<strong>必须依次出现的三个前置</strong>——它们中任何一个没出现，讨论年份都没有意义：</p>
+
+<ol>
+<li><strong>刚性解剖先完成。</strong>骨科、脊柱、放射外科的 L4（人监督下完成完整术式）在人体临床落地。这是最容易的一档，如果它都没发生，软组织不必谈。</li>
+<li><strong>出现愿意为它兜底的资本。</strong>要么是产品责任＋强制险的组合能承接手术事故，要么是设备制造商愿意用自己的资产负债表包赔，要么是监管接受"制造商＋术者共同担责"的分配。<em>这一步不决定它能不能开始（低风险子步骤早就在走），它决定能走到多深。目前这一层零迹象。</em></li>
+<li><strong>软组织的尾部可靠性被证明。</strong>需要在真实患者群体上有前瞻性注册试验数据。<span class="ev f">事实</span>（同行评审 · 器械证据普查）而这一环整个医疗 AI 领域都极其薄弱：在一项对已获批 AI 医疗器械的普查中，<strong>1,357 个器械里只有 3 个评估了患者结局</strong>——其余评估的是诊断准确性一类的替代指标，而不是"病人有没有变好"。</li>
+</ol>
+
+<div class="claim">我的判断：外科主刀与开放式家务都属于本书所有场景里最晚的那一档，但它们是<strong>两类不同的死法</strong>——家务卡在"整体完成度测不起"，外科卡在不可逆＋伦理硬门槛＋验证周期以年计。<em>正因为机制不同，两者不能互相当先行指标：家务先跑通不等于外科将跟上，反过来也一样。</em></div>
+
+<p><span class="ev i">推断</span> 但这不意味着外科不变。<strong>真正会先发生的是"人做同样的事、但做得更稳"</strong>：术前规划、影像三维重建、术中导航、器械稳定、危险区域预警、以及部分结构化子步骤的自主执行。<em>这些会持续深化，而"谁主刀"这件事不变。</em></p>
+
+
+
+
+<h4>还有一条路径：外科可能不是被替代，是被绕开</h4>
+
+<p><span class="ev j">判断</span> 前面整段问的都是"机器什么时候能主刀"。但有一条完全不同的路径值得留着：<em>某些手术可能不是被自主系统接手，而是不再需要发生。</em></p>
+
+<p>早筛把干预点前移、药物替代掉一部分外科适应症、基因与合成生物学方向若在某些疾病上取得进展——这些都不会让机器学会主刀，但会让某一类手术的需求整体萎缩。<strong>这与前面 ATM 那个案例是同一个结构：真正终结柜员岗位的不是 ATM 这台机器，是手机银行让"来一趟"这件事不再必要。</strong></p>
+
+<p><span class="ev i">推断</span> 所以判断外科这一格的走向，要同时盯两条线：<strong>一条是自主度（本节讲的），另一条是适应症的增减（本书没有覆盖）。</strong>前者慢，后者可能更快。这一点对本书是个明确的边界声明——<em>本书只跟踪"机器进入物理世界"这条线，不跟踪生命科学自己的进展；而后者完全可能从需求侧改变这里的结论。</em></p>
+
+<h3>样本三 · 农业：改造世界最久的那个行业</h3>
+
+<p>农业值得单独看，因为它提供了这条主线上<strong>时间跨度最长的证据</strong>——而且它的经验直接反驳一个流行假设。</p>
+
+<h4>它早就跑通了，而且靠的不是机器变聪明</h4>
+
+<p><span class="ev i">推断</span> 农业是"环境可改造"这条判据最纯粹的样本，而且改造的深度远超其他行业：<strong>垄距、株距、田块形状、种植制度，全都是为机器重新设计过的；甚至作物本身被改造过</strong>——为了适应机械采收，育种选出了果皮更硬、成熟期更集中的品种。</p>
+
+<div class="claim">为了让机器能干活，人类不但改了田，还改了番茄。这是"改世界迁就机器"最彻底的一次，代价是产品本身被改变了。</div>
+
+<p><span class="ev j">判断</span> 这条历史经验对主线的意义很大：<strong>物理世界的自动化，历史上主要不是靠机器变得足够聪明去适应世界，而是靠世界被重新设计成机器能处理的样子。</strong>——集装箱、条码、仓库地标、垄作，是同一个动作在不同行业的重复。而这也解释了为什么家务和外科最难：<em>你不能重新设计一个陌生人的家，更不能重新设计人体。</em></p>
+
+<h4>但农业有一个死穴：频次</h4>
+
+<p><span class="ev i">推断</span> 用第一节那两个乘数看农业，第一个乘数极差：<strong>一台采摘机一年可能只用三到六周。</strong>固定成本摊不掉——这不是技术问题，是日历问题。</p>
+
+<p>所以农业自动化走出了一条和工厂不同的路：<strong>不是每个农户买设备，是作业服务化</strong>——跨区作业、按亩收费、设备高频次流转。<em>用服务把频次乘数补回来，是农业给其他行业的最有价值的一条经验。</em></p>
+
+<p><span class="ev j">判断</span> 这条对"改环境的专用机器"这一类有直接推论：<strong>凡是频次低但价值密度高的场景，正确的商业形态是服务不是销售。</strong>电力巡检、管道检测、季节性质检都属于此类——如果一个供应商坚持卖设备而不做按次服务，通常说明它自己也没算清账。</p>
+
+
+<h4>案例 · 植保无人机：把"服务化"这条经验做到了极致</h4>
+
+<p>上面那条"用服务把频次乘数补回来"不是理论。中国农业里有一个已经跑完全程的实证，而且规模大到可以当结论用。</p>
+
+<p><span class="ev f">事实</span>（监管口径与行业白皮书）截至 2025 年 11 月底，全国农用无人机保有量<strong>超 30 万架</strong>；2024 年年作业量<strong>突破 26 亿亩次</strong>，带动近 <strong>50 万人</strong>从事飞防服务，形成约 <strong>130 亿元</strong>的飞防服务市场。行业格局高度集中，两家厂商占据绝大部分补贴销量。<span class="ev f">事实</span>（公司披露）其中一家 2024 年净利润约 7,040 万元，2025 年上半年约 1.3 亿元——<em>这条线已经不需要靠故事活着了。</em></p>
+
+<p><span class="ev i">推断</span> 拆开看它为什么能成，四条判据全部对上，而且每一条都是<strong>被设计出来的</strong>，不是碰巧：</p>
+
+<div class="tw"><table>
+<thead><tr><th>条件</th><th>植保无人机怎么满足的</th></tr></thead>
+<tbody>
+<tr><td>失败代价可圈定</td><td>喷洒失败＝这一亩药效差，损失有上限、可赔付，且不伤人</td></tr>
+<tr><td>环境可被改造</td><td>不需要改田——<strong>它绕开了地面</strong>。低空是农业里唯一一块天然结构化的作业空间</td></tr>
+<tr><td>重复次数足够多</td><td>单机一年只服务自家几百亩＝算不过来；<strong>跨区作业＋按亩收费</strong>之后，同一台机器一年能飞几万亩</td></tr>
+<tr><td>成功便宜可测</td><td>按亩计价、飞行轨迹与作业面积由系统自动记录，结算即验收</td></tr>
+</tbody>
+</table></div>
+
+<div class="claim">最关键的一条是第三条：设备的所有权从农户手里挪到了服务方手里，频次乘数因此从"一年用三周"变成"一年飞十个月"。同一台机器、同一个技术水平，账算不算得过来，取决于它被谁持有。</div>
+
+<p><span class="ev j">判断</span> 这条经验可以直接套到本书关心的其他场景：电力巡检、管道检测、季节性质检、光伏清洗——凡是<strong>频次低、价值密度高、失败可赔付</strong>的场景，正确的商业形态都是按次服务，不是卖设备。<em>一个供应商如果坚持卖设备而不肯做按次服务，通常说明它自己也没算清这笔账，或者它清楚地知道设备在客户手里根本用不满。</em></p>
+
+<p>还有一条反向的提醒：这门生意的利润率被压得很薄，两家厂商已经在打价格战，而飞手按亩计酬、旺季集中。<strong>"跑通了"和"好赚"是两件事。</strong>本书只用它证明第一件。</p>
+
+<h4>农业里最难的一格，和家务同构</h4>
+
+<p><span class="ev j">判断</span> 露天采摘（尤其是浆果、叶菜这类软、易损、位置随机、遮挡严重的对象）是"通用接触操作"在户外的最难样本：<em>柔性接触操作 ＋ 环境部分不可控 ＋ 对象个体差异大。</em>它和家务的结构几乎一样，区别只在于农田比家庭更容易被改造，而且失败代价低得多（漏采一个果子）。</p>
+
+<p>所以它是个有用的先行指标：<strong>如果连露天采摘都还没跑通，家用通用机器人不必谈。</strong></p>
+
+
+
+<h3>样本四 · 教育：手段的改变，本身就是这条主线的一段</h3>
+
+<div class="note">
+  <span class="lb">先标一下这一节的证据等级</span>
+  <p>与自动驾驶、植保无人机那两节不同，<strong>这一节是机制推演，不是盘点</strong>——它由前面的判据推出来，但缺少中国教育现场的当期数据（课时结构变化、教师工时、机构成本曲线都没有可核的公开读数）。</p>
+  <p>因此这一节的结论应当按〔推断〕与〔判断〕读，<em>不要把它和有运营数据支撑的那几节放在同一证据等级上</em>。</p>
+  <p>还要说明一处位置：<strong>我本人就在教育行业里工作。</strong>这一节比其他样本长，偏爱是自觉的——把位置摆出来，比声明自己客观有用。</p>
+</div>
+
+<p><span class="ev j">判断</span> AI 进入教育，最先改变的不是理念，是<strong>教学活动的物理组织方式</strong>：谁在讲、讲多少遍、练习从哪来、反馈多快到、一个老师能覆盖多少人。这一层的条件取值极其有利——错误可撤销（学错了可以重学）、环境改造只要改课件、无人需要签字。</p>
+
+<p>但这里有一个容易搞混的地方，而且它决定了替代的边界：<em>学习效果的验证成本其实很高</em>（要看几年后的迁移能力），<strong>是考试的验证成本很低</strong>。教育系统之所以用考试，正因为它便宜，不是因为它测的是学习。</p>
+
+<div class="claim">所以被 AI 快速替代的是"备考的生产环节"，不是"教育"。用考试当验证，等于把筛选功能的度量误安到了传授功能上。</div>
+
+<p><span class="ev i">推断</span> 教育的另一半功能——筛选、认证、社会化——几乎没被触动，因为认证权本身就是一种签字权，属于第一节判据一里"必须有人承接"的那类。由此得到一个与流行叙事方向相反的推论：<strong>AI 越强，学校的教学功能越贬值，学校的组织功能越升值。</strong></p>
+
+<p class="src">这条推论怎么检验：如果它成立，未来几年应当看到——同等条件下，教学内容的可替代性上升而组织能力的溢价上升。<em>这一节给的是机制；具体到某一所学校该怎么办，需要的是那个情境里的信息，不是一个框架。</em></p>
+
+<p class="src">至于"面对 AI 走向物理世界该培养什么样的人"，那是决策问题不是机制问题，放在第十三节。</p>
+
+
+<h4>把"验证成本"这对概念拆开：它决定了替代的边界</h4>
+
+<p>上面那组对比——学习效果的验证成本很高、考试的验证成本很低——值得展开，因为整个教育行业的形状都由它决定。</p>
+
+<div class="tw"><table>
+<thead><tr><th></th><th>验证什么</th><th>要多久才知道</th><th>成本</th><th>结果</th></tr></thead>
+<tbody>
+<tr><td><strong>学习</strong></td><td>能不能迁移到新问题、几年后还剩下什么</td><td>数年</td><td>极高，且难以归因</td><td>几乎没有机构真的在测它</td></tr>
+<tr><td><strong>考试</strong></td><td>在限定题型上的当期表现</td><td>数天</td><td>极低，可规模化</td><td>被所有系统当作学习的代理</td></tr>
+</tbody>
+</table></div>
+
+<p><span class="ev i">推断</span> 回到第一节那条判据——<strong>"成功便宜可测"是自动化的前提</strong>。教育里唯一便宜可测的是考试成绩，所以被 AI 快速改造的必然是<em>围绕考试的那一整套生产环节</em>：出题、组卷、批改、错题归因、针对性练习、进度追踪。这些环节的反馈周期以分钟计，学习回路转得飞快。</p>
+
+<p>而真正的"教育"——判断这个孩子此刻卡在哪、要不要现在推他一把、什么时候该让他自己撞一次墙——反馈周期以年计，而且没有低成本的判定方式。<em>它不是 AI 不想做，是这一档根本没有学习回路可用。</em></p>
+
+<h4>把一节课拆开：哪一段会先掉</h4>
+
+<div class="tw"><table>
+<thead><tr><th>环节</th><th>验证成本</th><th>会怎样</th></tr></thead>
+<tbody>
+<tr><td>讲授标准内容</td><td>低（讲没讲清楚，当场提问就知道）</td><td><strong>最先被替代</strong>。同一段内容，一个好版本可以复制无限次</td></tr>
+<tr><td>出题与批改</td><td>极低</td><td>已经在发生，且几乎无阻力</td></tr>
+<tr><td>针对性练习与错题追踪</td><td>低</td><td>快速深化，这是当前最大的增量</td></tr>
+<tr><td>判断"这孩子现在需要什么"</td><td>高</td><td>长期保留在人这一侧</td></tr>
+<tr><td>让他愿意做这件事</td><td>无低成本判定</td><td><strong>最后被触及</strong>，甚至不在这条主线上</td></tr>
+<tr><td>认证他达到了什么水平</td><td>—</td><td>不是能力问题，<strong>是签字权问题</strong>（第一节判据一）</td></tr>
+</tbody>
+</table></div>
+
+<div class="claim">一节课不会被整体替代，它会从中间裂开：可被验证的那半边迅速工业化，不可被验证的那半边反而变得更值钱、也更稀缺。</div>
+
+<h4>教师会不会是下一个柜员</h4>
+
+<p><span class="ev j">判断</span> 用前面 ATM 那个案例的两段式来看，答案分得很清楚：</p>
+
+<p><strong>第一段（ATM 段）已经在发生</strong>：讲授与批改这些"动作"被接走，单位产出所需的教师工时下降。按 ATM 的经验，这一段<em>不会</em>直接导致教师总数下降——因为成本下降会让教育供给变多、覆盖变广，就像网点变多。</p>
+
+<p><strong>第二段（手机银行段）才是真问题</strong>：那一段不是"办同一件事换个工具"，而是"还需不需要来这一趟"。对应到教育，就是——<em>如果认证与筛选可以脱离学校完成，那么"来学校"这件事本身的必要性就变了。</em>而认证权目前牢牢握在制度手里，没有松动迹象。</p>
+
+<div class="claim">所以教师这个岗位的安全边界，不在"AI 能不能讲课"，在"这个社会还需不需要通过学校来完成筛选与认证"。前者早已被越过，后者一动未动。</div>
+
+<h4>对个人选择的三条推论</h4>
+
+<ul>
+<li><strong>教学能力的相对价值在降，组织能力的相对价值在升。</strong>能把一堂课讲得漂亮，正在变成一件可复制的事；能让四十个人在一学期里持续投入，不是。</li>
+<li><strong>学历的信号价值取决于认证权，不取决于知识稀缺性。</strong>知识早就不稀缺了，学历依然有用——这本身就说明它卖的从来不是知识。</li>
+<li><strong>该培养什么人：优先培养"能判断"的能力，而不是"能执行"的能力。</strong>理由不是情怀，是本书的主线——可被低成本验证的执行环节，正是自动化最先吃掉的那一层；而判断之所以留得住，恰恰因为它难以被便宜地验证。</li>
+</ul>
+
+
+<h4>一个收束：人剩下的，正是机器进不去的那三处</h4>
+
+<p><span class="ev j">判断</span> 把全书的三条卡点倒过来读，会得到一个整齐得有点意外的对应：</p>
+
+<div class="tw"><table>
+<thead><tr><th>留给人的</th><th>对应本书哪条卡点</th><th>为什么机器进不去</th></tr></thead>
+<tbody>
+<tr><td><strong>担责与意义</strong>——决定"要什么、值不值"，替你承担后果</td><td>判据一 · 风险对冲</td><td>没有人或资本愿意为失败兜底，就到不了 D4。这不是能力问题</td></tr>
+<tr><td><strong>具身与关系</strong>——照护、信任、在场</td><td>判据三 · 伦理（强制保留人类环节）</td><td>越是不可逆、受影响者越无法表达同意的场景，人类环节越被强制保留</td></tr>
+<tr><td><strong>提问与品味</strong>——生成无限，选择更稀缺</td><td>第四条件 · 成功便宜可测</td><td>没有低成本判定"做得好不好"的地方，学习回路建立不起来</td></tr>
+</tbody>
+</table></div>
+
+<p class="src">先给这张表一个提醒：<strong>整齐本身是警报，不是证据。</strong>这三条卡点与这三种能力，很可能是同一套划分方式的两次表述，而不是两条独立推理撞在一起——按第十四节第 1 条（打分闭环），这类"倒过来正好对上"的表最该被怀疑。它可以当记忆锚，不该当交叉验证。</p>
+
+<p>这三条不是安慰话，它们是本书前面几节各自独立推出来的约束，倒过来看正好就是人的位置。<em>它对教育的含义比任何口号都具体：如果要培养"未来还有用的人"，那么该练的是承担后果的能力、与人在场相处的能力、以及在无限生成里做选择的能力——而不是把可被低成本验证的执行练得更熟。</em></p>
+
+<div class="claim">可被便宜验证的，机器会拿走；不可被便宜验证的，会变得更贵。这句话同时是本书的自动化判据和它的教育结论。</div>
+
+<p class="src">这三条的具体决策版本（包括投入往哪走、孩子该学什么）放在第十三节，此处只给机制。</p>
+
+<h3>样本五 · 形态：为什么送菜的机器人不需要长得像人</h3>
+
+<p>前面几个样本讲"进到多深"，这一个讲"以什么形态进"。<strong>这是比时机更根本的问题</strong>——形态如果错了，讨论它什么时候成熟就没有意义。</p>
+
+<h4>每个物理任务都有它的最小充分形态</h4>
+
+<p><span class="ev i">推断</span> 完成一件事需要的最少自由度和最简结构，由<strong>任务和环境共同决定</strong>，不由"通用"这个愿望决定。拿送餐拆开：平面移动需要的是轮子（双足是为楼梯与不平地面而生，而餐厅走廊恰恰最平）；承载需要的是柜体（躯干加双臂载重更小、重心更高）；交付需要的是一个推送动作（用不上双手协作）。</p>
+
+<div class="claim">一部小车加一个简单机械结构就够了。人形在这里是纯粹的浪费：更贵、更不稳、更耗电、更难维护、载重更小、故障点多几十倍。</div>
+
+<p><span class="ev j">判断</span> 这可以普遍化：<strong>人形是一个"极大形态"</strong>——自由度极高，因为它要应对人类演化环境里的<em>所有</em>任务。用极大形态做一件特定的事，等于把成本、可靠性、能耗和维护性全部浪费掉。</p>
+
+<p>支持人形最硬的论证是"世界是按人体尺寸建的，改机器比改世界便宜"。但这条论证的正确结论是：<strong>人形的市场在"不值得改造的旧环境"里</strong>——数量很大，价值密度最低。而送餐这个例子还有一层反讽：<em>它所在的环境早就被改造过了</em>——无障碍通道、电梯、平整地面本来是为轮椅和推车做的，轮式机器人白捡了几十年的基础设施红利。</p>
+
+<p><span class="ev i">推断</span> 物理世界反复胜出的形态几乎都是<strong>"移动底盘 ＋ 专用末端"</strong>：仓储 AGV、扫地机、送餐车、巡检四足加云台、机械臂加夹具。它们赢在<strong>把移动和操作解耦</strong>，两边各自优化、各自迭代、各自维修。而人形把两者强行耦合在一个躯干上——移动要求轻、低重心、稳定，操作要求高、有力、可达范围大，两组要求互相打架，结果两边都不最优。</p>
+
+<h4>越是人去不了的地方，越不需要人形</h4>
+
+<p>人形的每一个特征，都是对<strong>地球陆地、中等重力、有氧、常温、平整地面</strong>这个特定生态位的适应。离开它，这些特征逐项从优势变成负债：</p>
+
+<div class="tw"><table>
+<thead><tr><th>环境</th><th>人形的表现</th><th>实际在用的形态</th></tr></thead>
+<tbody>
+<tr><td>山地、野外、非结构化地形</td><td>重心高、支撑面小、跌倒代价大、载重比低</td><td><strong>四足</strong>——生物界早就给出了答案：山地动物是四足</td></tr>
+<tr><td>水下</td><td>阻力大、浮力配平困难、双足推进效率极低</td><td>鱼雷形 ROV／AUV ＋ 机械臂</td></tr>
+<tr><td>太空、微重力</td><td><strong>腿完全无用</strong>——没有"站"这个概念，双足是纯负载</td><td>机械臂＋抓持点。连宇航员自己都是抓着扶手移动的</td></tr>
+<tr><td>高温、高辐射、真空、粉尘</td><td>拟人的关节与皮肤是密封与散热的噩梦</td><td>密封壳体＋专用末端，形态由防护要求决定</td></tr>
+</tbody>
+</table></div>
+
+<div class="claim">人形的适用域，等于人类的适用域。凡是人自己去不了或去得很勉强的地方，人形也一样——而那恰恰是最需要机器人的地方。</div>
+
+<p><span class="ev j">判断</span> 这对"造人形是为了替人去危险地方"这个动机是釜底抽薪：<strong>它继承了人类全部的环境局限，却没有继承人类的适应性。</strong>而经济上恰好反着来——越危险、越不适合人的环境，机器人的价值越高。<span class="ev f">事实</span> 第三节那份采购规划里，拿到量的是四足巡检与双臂巡检：<strong>五千台四足对五百台人形，这个比例本身就是市场给出的形态答案。</strong></p>
+
+<h4>情感陪伴这一块，也该拆开</h4>
+
+<p>形态即功能的场景确实存在，但把这一整块留给人形并不成立。<strong>宠物形态在很多陪伴与照护需求上可能更贴合真实需要</strong>：</p>
+
+<div class="tw"><table>
+<thead><tr><th>维度</th><th>人形</th><th>宠物形态</th></tr></thead>
+<tbody>
+<tr><td>期望管理</td><td>激活"对人的期望"——期待它听懂每句话、记得你。做不到就是失望</td><td>激活"对宠物的期望"，<strong>期望越低越容易满足</strong></td></tr>
+<tr><td>恐怖谷</td><td>正踩在谷里</td><td><strong>不在那条曲线上</strong>；卡通化反而更可爱</td></tr>
+<tr><td>社交信号</td><td>开放集合，做不完</td><td>眼神、姿态、声音、触碰、跟随——<strong>有限集合，现有技术能做好</strong></td></tr>
+<tr><td>伦理与成本</td><td>越像人越被要求承担人的道德地位；自由度高、贵、摔倒伤人</td><td>没有道德包袱；便宜、续航好、掉地上不伤人</td></tr>
+</tbody>
+</table></div>
+
+<div class="claim">而最深的一条在表外：老人需要的往往不是"一个能陪我说话的人"，是"一个需要我照顾的东西"——照顾这个行为本身就是治疗性的。你不会觉得自己在照顾一个成年人形。</div>
+
+<p><span class="ev f">事实</span> 宠物型治疗机器人在养老与认知障碍照护中已有多年临床应用与研究文献，宠物型电子伴侣也有长期情感依恋记录；<em>而人形陪伴机器人至今没有可比规模的长期留存证据。</em></p>
+
+<p><span class="ev i">推断</span> 所以陪伴需求应当拆成四层：<strong>语言、记忆与提醒</strong>→屏幕或音箱，不需要身体；<strong>触碰、在场与被需要</strong>→宠物形态或安全软体；<strong>搀扶、转移与协助</strong>→护理器械或外骨骼（那是护理设备，不是陪伴机器人）；<strong>必须产生"与人同处"错觉的场景</strong>→人形。<em>最后这一层才是它真正剩下的那条缝。</em></p>
+
+<p class="src">对手方：对宠物的接受度存在文化与个体差异，也有人明确排斥"假动物"；上述实证主要来自特定国家的养老场景。这条判断的强度是"宠物形态在这块可能更优"，不是"人形一定错"。</p>
+
+<h4>另一条路：不是"机器＋人形"，是"真人＋机器"</h4>
+
+<p>人形机器人试图满足的需求，本来就有第二种满足方式——不是造一台机器给它人的形状（感知、泛化、灵巧、社交存在感四样全要从零重造），而是拿一个真人给他加上机器（那四样本来就有，只补缺的部分）。</p>
+
+<div class="tw"><table>
+<thead><tr><th>判据</th><th>替代路线</th><th>增强路线</th></tr></thead>
+<tbody>
+<tr><td>尾部失败率</td><td>分布外场景是最难的一格</td><td><strong>泛化是现成的</strong>——处理没见过的情况本就是人的强项</td></tr>
+<tr><td>风险对冲</td><td>D3→D4 卡在"没人盯着时谁兜底"</td><td><strong>不需要跨这一步</strong>——人还在环里</td></tr>
+<tr><td>伦理上限</td><td>撞上"强制保留人类环节"</td><td><strong>绕开了</strong>——本来就没取消人类环节</td></tr>
+</tbody>
+</table></div>
+
+<p><span class="ev j">判断</span> 这条路线一直在赢，只是没被这样归类过——<em>本节开场那个 ATM 的例子就是它最有名的一次实验</em>：<strong>手术机器人普及二十多年，主流仍是遥操作</strong>；民航自动化远超汽车却强制保留飞行员；外骨骼、假肢、人工耳蜗、AR 辅助装配，都是同一条路线。</p>
+
+<div class="claim">但有一条边界：增强改变的是有效工时与覆盖半径，替代改变的是同时在场的人数。判断一个场景该走哪条，问一句——缺的是人手，还是人的能力？</div>
+
+<p><span class="ev i">推断</span> 物理世界自动化最真实的驱动力往往不是"人干得不够好"，是<strong>招不到人</strong>。<span class="ev j">判断</span> 但"增强不解决缺人"这句要收窄：<strong>一人多机（无人机、仓内远程操作、部分手术）已经在把一个人的覆盖半径放大到多台设备上，那就是在解决人手</strong>；民航从三人机组减到两人机组，也是增强直接减少了人头。<em>能否换算成"第二个人"，取决于 1:N 是否跑通——这是可观察量，不该先验排除。</em>真正不可替代的是"必须同时在多个地点持续在场"这种约束。</p>
+
+
+<h4>那"钢铁侠"式的深度改造呢</h4>
+
+<p>把增强推到极致——骨骼换成高强度金属、皮肤换成防护甲——需要区分<strong>穿上去的</strong>和<strong>换进去的</strong>。后者卡住它的不是材料学：</p>
+
+<ul>
+<li><strong>人体的结构件同时是功能件。</strong>骨骼还是造血器官、钙磷储库、内分泌器官；皮肤还管体温调节、免疫屏障、感觉。<em>换掉它们不是升级零件，是移除几个器官系统。</em></li>
+<li><strong>能量与散热。</strong>真正的工程难题不是强度：人体持续输出约百瓦靠血液循环散热，而<strong>穿在身上的东西散热面积被身体尺寸锁死</strong>。这就是外骨骼要么功率很低、要么只能撑几小时。</li>
+<li><strong>接口带宽。</strong>人的神经—肌肉环延迟在百毫秒量级——<strong>可以给更强的执行器，但控制精度受限于人的感知—动作环</strong>。所以外骨骼在助力上成功、在精细操作上没优势。</li>
+<li><strong>不可逆是负资产。</strong>外骨骼能脱，植入不能；技术快速迭代期，不可逆的植入会把人锁死在某一代技术里。</li>
+</ul>
+
+<div class="claim">但最要命的是第五条：增强路线的全部优势来自"人还是人"。改造越深这个前提越弱，改到极限处两条路线会合并，同时也会撞上替代路线那三道关。</div>
+
+<p><span class="ev j">判断</span> 所以增强路线的甜点区在<strong>可脱卸的外部增强</strong>：外骨骼、遥操作、AR 与视觉辅助、记忆辅助。<em>它们保留人的全部优势，只补机器擅长的部分——力量、精度、耐力、不知疲倦的注意力。</em>而医疗性植入沿另一条线扩大适应症（其正当性来自"恢复"而非"超越"），两条线在很长时间里不会合流。</p>
+
+<p>至于脑机接口：它是"真人＋机器"方向上带宽最高、延迟最低的那一端，但<strong>是这条线的远端，不是入口</strong>；而且当前临床形态做的是<strong>恢复而非增强</strong>——解码运动皮层的动作意图，为失能者重建被中断的输出通道。<span class="ev i">推断</span> 用第一节那三问检验健康人的侵入式增强：不可逆（是）、能否真实同意（存疑，就业压力下的"自愿"）、受损者有无组织（有，未增强者会成为可识别群体）——<em>三问里两问指向强抵制，其伦理阻力可能比替代路线还大。</em></p>
+
+<h4>形态错配，与它为什么仍会持续存在</h4>
+
+<p><span class="ev j">判断</span> 综上：人形不只是时机不对，是<strong>形态错配</strong>。绝大多数物理场景的正确答案是专用形态；它真正的位置只剩下情感场景里"非人不可"的那一小部分，加上不值得改造的旧环境这条长尾——<em>而这与它今天获得的注意力和资本完全不成比例。</em></p>
+
+<p>但错配不意味着它会消失。<strong>叙事需求不会因为工程上不划算而减弱</strong>——人形最强的功能是让不懂技术的人在三秒内理解"这是通用机器人"，融资与政策场合刚性需要它。<span class="ev i">推断</span> 副作用是它成了一个<strong>叙事驱动的技术漏斗</strong>：那些资本真的推进了一批本会走得更慢的零部件——关节模组、减速器、力控与力矩传感、灵巧手、高能量密度电池。<em>而这些零部件最终会装到专用形态上。</em>（留三分：大量为炫技而生的技术并没有溢出，溢出幅度事前不可预测。）</p>
+
+<p class="src"><strong>这条判断最该被挑战的地方，在作业侧之外：人形可能不是干活的形态，是采数据的形态。</strong>第三节说过，具身数据稀缺约 2000 倍，而"手持夹具式的通用操作接口"已经成为第四条数据路径。如果人形本体的经济价值主要在于<em>采集人类动作数据、再迁移到专用本体</em>，那么"形态错配"这个判断的靶心就偏了——它不是错配，是<strong>投入端和产出端不在同一个市场</strong>。<span class="ev j">判断</span> 但这不改变作业侧的结论：采数据用的本体只需要少量、可控、在实验室与示范场景里跑，与"进车间干活"要的可靠性、成本与维护性是两套要求；而且第四条数据路径（手持夹具）恰恰说明，<em>采人类动作数据并不需要一台完整的人形</em>。这条对手方要成立，需要看到一个可观察的读数：<strong>厂商披露里"数据采集与训练服务"成为独立收入项，且规模超过本体销售。</strong>在那之前，本节的结论按作业侧读。</p>
+
+<div class="claim">对投资的推论：押零部件比押整机合理——零部件既服务人形也服务专用形态，谁赢都要用；整机押的是形态本身。而人形降温的节奏由叙事周期决定，不由技术进度决定。</div>
+
+<p><span class="ev i">推断</span> 最后一条把几件事串起来：<strong>通用性应该在脑里，不在身上</strong>——一套通用模型驱动多种专用本体，而不是一个万能本体干所有事。控制分层说明关节环与任务规划本就该解耦；接口开放性（第三节）说明真正卡住扩散的是本体接口不标准，而不是本体不够像人。<em>人形路线的隐含假设是"用一个标准化的万能本体来统一接口"——那是在用硬件解决软件问题。</em></p>
+
+
+
+<h3>样本六 · 晶圆厂：D4 到底长什么样</h3>
+
+<p class="src">这一节讲的就是常被叫作"<strong>黑灯工厂</strong>"（lights-out factory）的那种状态——只不过真实的黑灯工厂不长在宣传片里，长在晶圆厂。</p>
+
+<p>前面五个样本讲的都是"还没到"。这一个讲"已经到了"——而且到得如此彻底，以至于几乎没人把它算进"机器人"的讨论里。<em>想知道 D4 的终局形态，不用想象，去看一座十二英寸晶圆厂。</em></p>
+
+<h4>它的自动化程度</h4>
+
+<p><span class="ev f">事实</span>（行业媒体与厂商披露）在十二英寸晶圆厂里，一片晶圆走完一次完整生产周期，<strong>在厂内流转的距离超过 20 公里</strong>，要在数百台设备之间完成上千次搬送。一座厂的空中轨道总长可达数十公里，每日搬运任务数十万次。<span class="ev f">事实</span>（技术社区转述，非官方口径）某头部厂区在不到 0.5 平方公里内铺设超过 50 公里轨道、5,000 个以上道口、2,000 台搬运车，日运量约 60 万车次。系统可用性要求达到<strong>"五个九"</strong>（99.999%），因为几分钟的搬运中断就可能让整条产线的时间窗全部作废。</p>
+
+<p>这套系统没有一个环节长得像人。它是<strong>空中轨道＋标准载具＋储存柜＋调度软件</strong>，晶圆全程装在密闭盒子里，人不碰、也不该碰。</p>
+
+<h4>它是怎么走到 D4 的：三件事，没有一件是"机器变聪明了"</h4>
+
+<div class="tw"><table>
+<thead><tr><th>做了什么</th><th>对应本书哪条判据</th></tr></thead>
+<tbody>
+<tr><td><strong>把环境彻底重造</strong>：洁净室、恒温恒湿、地面到天花板全部按搬运系统设计</td><td>环境可被改造——而且是本书所有样本里改得最彻底的一个</td></tr>
+<tr><td><strong>把载具与接口冻结</strong>：晶圆盒、装载口、设备联锁、通信协议全部走行业统一标准，不同厂家的设备可以互换对接</td><td>接口开放性——这正是第三节说"最硬的那条约束"，晶圆厂是少数已经解决它的行业</td></tr>
+<tr><td><strong>把失败圈进可控范围</strong>：全流程电子化追溯，每一片的位置、参数、时间窗都在系统里</td><td>失败代价可圈定＋成功便宜可测</td></tr>
+</tbody>
+</table></div>
+
+<div class="claim">晶圆厂的无人化，靠的不是更聪明的机器人，是"改世界＋冻接口＋可追溯"这三件事全部做完。这与农业那条历史经验完全同源，只是它做得更极端、也更近。</div>
+
+<h4>最有意思的一条：在这里，人是干扰源</h4>
+
+<p><span class="ev f">事实</span>（行业技术文献）全自动晶圆厂运行中的一个已知问题，是<strong>来自人的干扰</strong>：只要人还在现场，设备就可能被离线操作、载具可能被从一个位置挪到另一个位置、批次可能被放到系统看不见的架子上——<em>而这一切都不经过制造执行系统。</em>在半自动的厂里，载具的放置与取走常常没有规律，且经常发生在设备准备好之前。</p>
+
+<p><span class="ev i">推断</span> 这句话值得反复读。它说明 D3 到 D4 的最后一步，<strong>常常不是"让机器学会应付人"，而是"把人的即兴操作从流程里取消"</strong>。人不是不能干活，人是<em>不可预测</em>——而不可预测正是自动化系统最贵的成本。</p>
+
+<p><span class="ev j">判断</span> 这条对判断其他场景什么时候能到 D4，是一个很硬的检验：<em>问那个场景能不能接受"人不再随手插一脚"。</em>产线可以（关掉手动模式即可），仓库大体可以，公路不行（路上永远有别的司机），家里更不行（那本来就是别人的地盘）。<strong>凡是无法取消人类即兴介入的场景，D4 都要靠"围栏"实现——把人挡在外面，而不是让机器学会与人共处。</strong>这也解释了为什么地理围栏是无人驾驶目前唯一走通的形式。</p>
+
+<h4>但它也划出了这条路的边界</h4>
+
+<p><span class="ev j">判断</span> 晶圆厂能这么干，是因为它单位面积的产值高到可以支付这一切：轨道、洁净室、标准载具、五个九的可用性，每一样都极贵。<em>拿它去推论"其他行业也会这样"是错的</em>——绝大多数场景付不起这笔改造费。它给的不是路线图，是<strong>参照系</strong>：告诉你 D4 的完全体需要付出多少，从而让你在看别的场景时，能估出它离那里还差多远、以及那笔钱由谁出。</p>
+
+<h2><span class="num">第六节 · 伦理与大模型</span>门槛怎么动，模型这条线怎么传导</h2>
+
+<h3>伦理约束的三个可观察特征</h3>
+
+<p><span class="ev i">推断</span> 抵制强度约等于<strong>受损群体的组织程度 × 损害的可见度</strong>——这解释了为什么司机被冲击时有强抵制、文案写手被冲击时几乎无声。<em>抵制的强弱和这件事对不对，几乎没有关系。</em>而制度反应的速度取决于第三个因素：是否出现了可归责的具体事件。</p>
+
+<p>技术改变伦理的历史机制是<strong>先出现既成事实、再出现规范追认</strong>（麻醉、输血、器官移植、试管婴儿都曾被视为违背伦理）。<span class="ev j">判断</span> 但有一类不会被吸收：<strong>不可逆、且受害者无法表达同意的</strong>——因为"事后追认"这个机制在这里失效，受害者没有机会参与那个追认过程。</p>
+
+<div class="claim">判断某条伦理门槛会不会松动，问三个问题：损害可不可逆？受害者能不能同意？受损者有没有组织？三个都是「否」的，历史上从来挡不住。</div>
+
+<h3>脑机接口：读出与写入不是一件事</h3>
+
+<p><span class="ev f">事实</span>（公司披露）当前临床级脑机接口：植入体使用 1,024 个电极；语音试验中一名渐冻症患者于 2026 年 1 月植入，<strong>电极位于言语运动皮层</strong>，当患者做出说话口型时系统读取意图并近实时转为语音。下一阶段是不需张口、仅凭想象。</p>
+
+<p><span class="ev i">推断</span> 注意它读的是<strong>运动皮层的动作意图</strong>，不是语义、不是知识。即便"仅凭想象"阶段，想象的也仍然是说话这个动作。它解码的是被中断的输出通道——<em>本质是给出口修一条旁路，而且这是 AI 进入物理世界最亲密的一个方向。</em>关于它作为"增强路线终极形态"的定位与边界，见第五节样本五。</p>
+
+<p><span class="ev j">判断</span> 至于"换个芯片就掌握知识"：当前能下的强结论只有一条——<em>尚无把任意结构化知识直接编码进大脑的已知、可泛化机制</em>，理由是表示问题（知识分布式存储且与个体经验编码耦合）。<strong>但"现状没有"不能推出"原理上不可能"。</strong>而一个更现实的版本会先到且不需要开颅：<strong>把外部检索变得足够无缝，以至于"记住"失去价值。</strong>真正的教育问题在这里，不在芯片。</p>
+
+<h3>大模型这条线怎么传导到主线</h3>
+
+<p>大模型这条线本身不是主线，但它通过三个渠道影响主线：<strong>供给算力资本、决定操作策略的能力上限、以及决定你我什么时候用得起。</strong></p>
+
+<h3>军备竞赛的结构</h3>
+
+<p>投入水平由对手决定而非需求决定；三重加力是赢家通吃预期、融资依赖"在前沿"这个位置、国别竞争放松成本约束。<span class="ev j">判断</span> 说它对行业整体过剩是过强的——弹头没有消耗市场而 token 有。能保留的是囚徒困境这个结构：<em>对个体理性、对整体可能过剩，社会成本以电力、芯片、人才价格传导给所有人，包括不参与的人。</em></p>
+
+<h3>"模型够不够支撑物理世界"是错问题</h3>
+
+<p>"够"是逐任务的，任务分布极长尾。对演示早就够，对生产从来没够——差距不在聪明程度，在<strong>尾部失败率</strong>。</p>
+
+<p><span class="ev i">推断</span> 更重要的是：<em>今天限制机器人进工厂深度的，是动作数据、手的灵巧度、和愿意兜底的资本</em>——这三样与模型的对话能力关系不大。但也不能说"完全正交"：更强的世界模型可能同时降低真机数据需求、改变尾部失败形态、从而改变可保性。<strong>能力与约束不正交，它们可能一起移动。</strong></p>
+
+<h3>扩散比前沿重要</h3>
+
+<p><span class="ev f">事实</span>（第三方估算）2026 年 7–8 月，公开基准上最强开源与最强闭源模型分差约 3 分；开源单位成本约为闭源的十分之一到三十分之一；开源推理价格自 2023 年以来每年下降 30–50%；推理已占全部 AI 算力约三分之二。</p>
+
+<p><span class="ev j">判断</span> 对不在前沿的人，前沿速度不构成决策输入，<strong>扩散速度才是</strong>，而且两条曲线经常反向——前沿越卷，落后一代越快被甩卖。<em>前沿的军备竞赛，某种意义上是在替你降价。</em>但"可替换"必须按具体任务的质量、延迟、合规、运维总成本验证：API 兼容不等于行为兼容。</p>
+
+<h3>接口冻结：该冻的是工作单元</h3>
+
+<p>半导体的机制不是"接口六十年不变"，而是分层抽象、兼容承诺与迁移工具。常见的判据「换一个模型不需要改代码」说的是 LLM API；<strong>物理部署的相关界面是工作单元</strong>——末端执行器、料箱、工装、总线、安全区，那一层根本没有冻结，形态多样性还在增加。</p>
+
+<p><span class="ev j">判断</span> 所以对主线的推论是：<em>物理世界的"平缓"不会以模型排行榜稳定的形式到来，会以工作单元接口标准化的形式到来。</em>盯的应该是接口标准和安全区规范，不是榜单。</p>
+
+<h3>泡沫判据与"泡沫留下基建"</h3>
+
+<p>判据：<strong>租金不是残值</strong>；<strong>经营性现金流不足以判泡沫</strong>（不扣资本开支、可被成熟业务补贴）。应看自由现金流、增量 AI 收入、利用率、实际成交残值与减值。</p>
+
+<p><span class="ev j">判断</span> 而"泡沫破了会留下基建"这个安慰只对一半：铁轨与暗光纤是低运营成本、多十年寿命、可转售的网络资产；<strong>加速器不是</strong>。而且"股东亏损、社会拿到基建所以是转移支付"在经济学上不成立——低利用率或迅速过时的资产是真实的资源浪费。<em>但变压器、配电、冷却管路这些是像铁轨的</em>，所以这一轮真正会沉淀下来的，是变压器、配电与冷却这一层。</p>
+
+<h2><span class="num">第七节 · 定位</span>历史参照，与怎么给一个现象归位</h2>
+
+<p>把这轮和蒸汽、电力、互联网做对比，不是为了找修辞，是为了<strong>借历史校准两件事：滞后期有多长，以及物理世界到底会不会被换一遍。</strong></p>
+
+<h3>四次革命，按"进入物理世界"这条线对比</h3>
+
+<div class="tw"><table>
+<thead><tr><th></th><th>蒸汽</th><th>电力</th><th>互联网</th><th>AI</th></tr></thead>
+<tbody>
+<tr><td><strong>核心变了什么</strong></td><td>出现新动力源</td><td>动力变得<strong>可分配</strong>——从一根主轴到每台机器一个电机</td><td>信息的复制与传输成本趋零</td><td>生成与判断的边际成本趋零</td></tr>
+<tr><td><strong>本身是不是物理的</strong></td><td>是</td><td>是</td><td><strong>基本不是</strong></td><td>不是，要靠载体进入</td></tr>
+<tr><td><strong>要改造什么</strong></td><td>工厂、铁路、船舶</td><td>厂房布局、电网、几乎所有设备</td><td>几乎不用改物理世界（除终端）</td><td>工作单元、接口、规范、技能</td></tr>
+<tr><td><strong>主要瓶颈</strong></td><td>燃料与机械可靠性</td><td><strong>互补性投资与组织重构</strong></td><td>带宽与终端普及</td><td>数据、尾部可靠性、对冲、接口开放性</td></tr>
+<tr><td><strong>有没有引发存量报废</strong></td><td>有</td><td><strong>有，而且极彻底</strong></td><td><strong>基本没有</strong></td><td>目前只在机房内部发生</td></tr>
+<tr><td><strong>靠什么社会技术兑现</strong></td><td>股份公司、铁路法与时刻表标准</td><td><strong>标准（电压／频率／插座）＋ 公用事业特许与安规</strong></td><td>协议标准 ＋ 平台责任规则</td><td><strong>工作单元接口标准 ＋ 责任分配规则</strong>——两样都还没有</td></tr>
+<tr><td><strong>滞后期</strong></td><td>数十年</td><td>技术可用到生产率跃升约三四十年</td><td>约十年到普及</td><td>未知</td></tr>
+</tbody>
+</table></div>
+
+<p><span class="ev j">判断</span> 最后那一行是这张表里最该看的一行，也是本书前面几节反复触到、却一直没有命名的东西：<strong>每一次革命真正的兑现条件，都不在机器那一侧，而在一套配套的"社会技术"上</strong>——它不产机器，却决定机器能不能被大规模用起来。电压与插座冻结之前，电器产业不可能存在；铁路时刻表出现之前，铁路只是更快的马车。</p>
+
+<p>按这个尺子看这一轮：第三节说的<em>接口开放性</em>、第一节说的<em>风险对冲</em>、第四节说的<em>招标规范与验收条款</em>，<strong>其实是同一层东西的三个面</strong>——它们共同构成这一轮的社会技术，而且<strong>两样都还没到位</strong>。<span class="ev i">推断</span> 这也给了一个很省事的判断法：<em>当你听到一个"AI 落地"的宏大预测时，直接问它靠哪套社会技术兑现。答不上来的，说的都是浪，不是海床。</em></p>
+
+<h3>为什么电力的类比度最高</h3>
+
+<p><span class="ev i">推断</span> 五条结构性相似，都不是修辞：</p>
+
+<ol>
+<li><strong>都是通用目的技术，不是单一产品。</strong>它本身不解决任何具体问题，要靠嵌进别人的流程才产生价值。</li>
+<li><strong>都必须靠互补性投资才能兑现。</strong>电力要改厂房布局与设备，这一轮要改工作单元、接口与技能。<em>光有技术不产生生产率。</em></li>
+<li><strong>都出现生产率悖论。</strong>技术可用很久之后，账面生产率才跃升——因为存量资产要折旧完，组织和技能要重建。</li>
+<li><strong>都是先叠加、后重构。</strong>电力最初只是把蒸汽机换成一台大电机继续驱动主轴，几十年后才变成每台机器一个电机；这一轮现在处在"副驾驶"阶段，流程还没被重新设计。</li>
+<li><strong>都要等接口标准化才真正扩散。</strong>电压、频率、插座冻结之后，电器产业才可能存在。</li>
+</ol>
+
+<h3>但电力类比有三处不成立，必须说清</h3>
+
+<div class="tw"><table>
+<thead><tr><th>差别</th><th>电力</th><th>AI</th></tr></thead>
+<tbody>
+<tr><td><strong>是否同质</strong></td><td>一度电就是一度电，可计量、可交易</td><td>token 在分词口径、单位成本、价值三层都不同质——<em>它是计费单位，不是计量单位</em></td></tr>
+<tr><td><strong>接口冻结时点</strong></td><td>很早就冻结（电压、频率、插座）</td><td>模型接口正在收敛，但<strong>物理侧的工作单元接口远未冻结</strong>，形态多样性还在增加</td></tr>
+<tr><td><strong>会不会犯错</strong></td><td>电动机不会"判断错"，只会坏</td><td>会出错、而且错法不可穷举——<strong>所以多了对冲和伦理两道电力时代不存在的关卡</strong></td></tr>
+</tbody>
+</table></div>
+
+<p><span class="ev j">判断</span> 第三条是最大的差别，也是最容易被类比掩盖的：<strong>电力革命只需要解决"能不能用"，这一轮还要解决"错了算谁的"。</strong>所以电力的三四十年不能直接搬——它可能因为资本动员速度更快而缩短，也可能因为多了两道关卡而拉长。<em>方向不确定，别拿那个数字当锚。</em></p>
+
+<h3>互联网是这里最有价值的反面参照</h3>
+
+<div class="claim">互联网革命证明了一件事：一场巨大的技术革命，完全可以几乎不引发物理世界的存量换新。</div>
+
+<p><span class="ev i">推断</span> 它彻底重构了信息流、商业形态和组织方式，但除了终端设备，你家里的东西没有因为它被迫更换。<strong>所以"技术革命必然带来物理世界换新潮"这个前提，本身就是错的。</strong></p>
+
+<p>这给出了本书最大的一个分岔：</p>
+
+<div class="two">
+  <div>
+    <div class="h">走电力的路</div>
+    <p>AI 通过载体进入物理世界，工作单元、设备、规范被逐步重构，最终出现一次大规模存量报废。<em>第一节那个终点温度计会亮。</em></p>
+  </div>
+  <div>
+    <div class="h">走互联网的路</div>
+    <p>AI 主要停在信息侧与决策辅助层，物理世界只做局部改造（专用机器＋改工作单元），不发生广域换新。<em>终点温度计长期不亮，而这不代表革命没发生。</em></p>
+  </div>
+</div>
+
+<p><span class="ev j">判断</span> 目前的证据两边都有：机房内部已经在报废（像电力），而消费端毫无动静、专用自动化也主要是"一行业一专机"（像互联网）。<strong>目前无法判断最终走哪条，但这是整份文档里最该盯的分岔</strong>——它已经写进第十四节的证伪条件。</p>
+
+<h3>蒸汽给的那一条提醒</h3>
+
+<p><span class="ev j">判断</span> 蒸汽革命里，真正改变世界地理的不是蒸汽机本身，是<strong>铁路</strong>——基础设施自己成了革命的主体，而且它的物理约束（坡度、轨距、燃料补给）不可跳过。<em>对应到这一轮：电力、冷却、配电这些东西可能比模型本身更决定节奏，而且它们没有摩尔定律。</em></p>
+
+
+<h2><span class="num">第八节 · 归位</span>示范：token 与算力出海处在哪一环</h2>
+
+<p>上面那套对比的实际用法，是<strong>给一个具体现象在主线流程里定位</strong>，并回答三个问题：处在哪一环？长期还是阶段性？受制于什么？下面用 token 与算力出海做一次完整示范。</p>
+
+<h3>先说清楚它是什么</h3>
+
+<p>"算力出海"在中文里混着三件事，性质完全不同：</p>
+
+<div class="tw"><table>
+<thead><tr><th>类型</th><th>实质</th><th>在主线的位置</th></tr></thead>
+<tbody>
+<tr><td><strong>资产出海</strong></td><td>到海外建机房，用当地的电和地</td><td>上游算力资本的地理再分布</td></tr>
+<tr><td><strong>算力服务出口</strong></td><td>国内算、海外用，按 token 或 GPU 小时收费</td><td>上游产能的<strong>需求出口</strong></td></tr>
+<tr><td><strong>模型出海</strong></td><td>开源权重发出去，零边际成本</td><td>不产生 token 收入，产生生态位</td></tr>
+</tbody>
+</table></div>
+
+<h3>归位：它属于军备竞赛期，处在主线的上游，不是物理世界落地的一部分</h3>
+
+<p><span class="ev i">推断</span> 它输出的是比特服务，不是物理部署。<strong>它的存在恰恰说明上游产能建得超过了本地需求</strong>——这和光伏、钢铁产能找出口的逻辑同构。<em>因此它不能被当作"AI 进入物理世界"的进度证据；它是第三节那条"竞赛驱动曲线"的一个衍生现象。</em></p>
+
+<h3>长期还是阶段性：我判断是阶段性的</h3>
+
+<p><span class="ev j">判断</span> 三个理由：</p>
+
+<ol>
+<li><strong>推理正在向边缘迁移。</strong>物理世界要的是低延迟、确定性、低功耗的本地推理，不是远程调用。<em>下游越落地，远程算力服务的相对需求越小。</em></li>
+<li><strong>各国建自有算力是明确趋势。</strong>主权算力的动机同时来自安全、合规和产业政策，它会持续侵蚀跨境算力服务的市场。</li>
+<li><strong>竞赛一旦降温，产能过剩缓解，出海动机随之减弱。</strong>它的驱动力本来就是"建多了"，不是"别人非要买"。</li>
+</ol>
+
+<h3>受制于什么：三条锁死了它的天花板</h3>
+
+<div class="tw"><table>
+<thead><tr><th>约束</th><th>后果</th></tr></thead>
+<tbody>
+<tr><td><strong>延迟</strong>：跨太平洋往返 150–200 毫秒</td><td>只能做批处理——离线数据处理、视频生成、批量翻译、训练。<strong>多轮 agent、语音、实时应用做不了</strong>，而那恰恰是增长最快的部分</td></tr>
+<tr><td><strong>合规</strong>：数据跨境与出口管制</td><td>能出海的主要是不敏感、公开或已脱敏的负载。<em>海外建机房不能自动绕开——管制同时约束目的地、最终用户与最终用途</em></td></tr>
+<tr><td><strong>同质化</strong>：算力准同质，token 不同质</td><td>纯转售没有护城河，毛利被压到边际成本；而带流程与责任承接的服务又受前两条限制</td></tr>
+</tbody>
+</table></div>
+
+<h3>什么情况下它会变成长期结构性生意</h3>
+
+<p><span class="ev j">判断</span> 需要至少一条成立：<strong>①出现算力的标准化计量与结算市场</strong>（像电力那样按小时按型号交易）——但 token 三层不同质正挡在这条路上；<strong>②能源成本优势大到足以覆盖延迟与合规的损耗</strong>，那它会变成"用商品承载能源出口"的一种形态，天花板由"只能做批处理负载"锁死。</p>
+
+<div class="claim">所以它更接近电解铝，而不是电力本身：电不好跨境，于是把电变成可运输的东西再出口。区别在于铝在交易所同质、可储存、按规格验收，而算力服务不可储存、且强依赖延迟与合规。</div>
+
+<h3>对个人的推论</h3>
+
+<p><span class="ev i">推断</span> <strong>token 商品化对使用者是好消息，对提供者是坏消息。</strong>价格每年 30–50% 的降幅是买方红利。不必考虑站到卖方一侧——那是拼电价、拼资本、拼规模的生意，<strong>纯转售没有中等玩家的位置</strong>——但"流程＋责任＋现场"那种承接型的中等位置恰恰存在，见第十三节的摩擦面。<em>该做的只是持续享受降价，并保持随时可换供应商的能力</em>——这既是成本策略，也是数据路径的安全策略。</p>
+
+<h3>这套归位方法可以复用</h3>
+
+<p>面对任何一个新冒出来的现象（下一个可能是具身数据服务、世界模型、算力期货……），按同样四步走：</p>
+
+<ol>
+<li><strong>它输出的是比特还是原子？</strong>比特侧的现象不进主线进度，只进上游。</li>
+<li><strong>它在主线的哪一环？</strong>上游产能／中游落地／下游存量报废。</li>
+<li><strong>它的驱动力是竞赛还是需求？</strong>竞赛驱动的现象会随竞赛降温而消退。</li>
+<li><strong>受制于哪几条硬约束？</strong>物理的（延迟、功耗、带宽）通常比制度的更难绕过。</li>
+</ol>
+<div class="part">
+  <div class="pk">第二部分</div>
+  <div class="pt">看什么：先行、当期、滞后</div>
+  <div class="pd">判断大模型对物理世界影响的三类指标。混在一起用，是所有「AI 进度追踪」最常见的失败方式——用滞后指标做前瞻决策，等于开车看后视镜。</div>
+</div>
+
+<h2><span class="num">第九节 · 先行指标</span>能提前看到的</h2>
+
+<div class="fix">
+  <span class="lb">先读这条：下表的"提前量"是赋值，不是估计</span>
+  <p>严格说，先行／当期／滞后不是指标的固有属性，而是<strong>相对于某个明确定义的目标事件</strong>而言。本书的目标事件是"某领域的深度档位发生转换"。</p>
+  <p><strong>而下表所有的提前量都没有历史校准</strong>——没有做过"这个指标亮了之后，平均过了多久档位才真的转换"。<em>它们是作者事先拍的提前量，还没拿历史记录对过</em>（统计上叫先验赋值）。对决策框架来说，假的提前量比没有提前量更有害：它会在错误的年份触发"该买产能了"。</p>
+  <p>正确用法：<strong>只用它们的相对次序（谁通常更早），不用绝对年数</strong>；并在每次档位真的转换后，回填"这个指标当时提前了多久"，用真实记录逐步替换赋值。这也是附录二那条"阈值先于观察"的必要配套。</p>
+</div>
+
+<div class="tw"><table>
+<thead><tr><th>指标</th><th>相对次序<br><span class="mono" style="font-size:9px">未校准</span></th><th>怎么看（中国口径）</th><th>可得性</th></tr></thead>
+<tbody>
+<tr><td><strong>大型采购方的对冲承诺</strong><br><span class="mono" style="font-size:11px">包赔、延长质保、按效果付费</span></td><td>最早</td><td>招标文件的技术规范与验收条款；集采公告里有没有写「包赔」「按产出结算」</td><td><span class="lv l">好</span></td></tr>
+<tr><td><strong>首次复购的招标／中标公告</strong><br><span class="mono" style="font-size:11px">注意：复购本身是 D3 的<strong>定义项</strong>，不是先行指标；能当先行用的只有"公告已挂出、交付尚未完成"这个时间差</span></td><td>很早</td><td>按采购人＋标的物比对，看第二次、第三次</td><td><span class="lv l">好</span></td></tr>
+<tr><td><strong>中标价年降幅度收窄</strong></td><td>较早</td><td>与上一条必须同时出现才算数（单独出现可能是竞争减少或限价）</td><td><span class="lv m">中</span></td></tr>
+<tr><td><strong>厂商收入结构的拆解口径</strong></td><td>较早</td><td>看招股书与问询回复里"行业应用"被拆开后的<strong>明确工业生产</strong>那一项，不看大类</td><td><span class="lv m">中</span></td></tr>
+<tr><td><strong>设备厂商与集成商开始要求持证维修</strong></td><td>不定</td><td>厂商侧的认证要求可能先于装机密度（预铺），也可能后于（被密度倒逼）——<strong>方向不定，须与装机量同看</strong>。与滞后表里"新工种＋认证＋保险三件套齐备"不是同一件事：前者是单点要求，后者是体系成型</td><td><span class="lv m">中</span></td></tr>
+<tr><td><strong>标准阶段码推进</strong></td><td>早</td><td>看官方 stage 数字本身，不看转述；<em>标准不是闸门，但它让对冲变便宜</em></td><td><span class="lv l">好</span></td></tr>
+<tr><td><strong>接口废弃预告、配件停产公告</strong></td><td>早·厂商主动发</td><td>厂商主动发布，是消费端唯一真正的先行信号</td><td><span class="lv l">好</span></td></tr>
+<tr><td><strong>本地规上企业岗位描述的变化</strong></td><td>较晚</td><td>是否开始要求「设备＋软件」复合能力——用人单位远早于教育体系</td><td><span class="lv m">中</span></td></tr>
+<tr><td>零部件国产化率与交货期</td><td>较早</td><td>减速器、丝杠、编码器、力／触觉传感器</td><td><span class="lv m">中</span></td></tr>
+<tr><td><strong>人机杠杆倍数（1:N）的变化</strong><br><span class="mono" style="font-size:9px">增强路线，第二节第二张表</span></td><td>不定</td><td>同一岗位在管设备台数；远程值守中心的席位与在管设备比；<strong>本地招聘描述里"负责 N 台"的 N 值</strong>。它测的不是替代深度，是<em>一个人覆盖多少个工作单元</em>——第十四节第 8 条承认主表会整个漏掉这一路，这一行就是补丁</td><td><span class="lv m">中</span></td></tr>
+</tbody>
+</table></div>
+
+
+
+<p class="src"><strong>关于"相对次序"这一列：</strong>本书<em>不给绝对年数</em>。那些年数（对冲承诺约 1–3 年、标准阶段码约 2–4 年、岗位描述约 3–5 年、复购公告数月）是作者的先验赋值，没有历史校准；印在表里会被当成研究结论——<strong>假的提前量比没有提前量更有害</strong>。故在此备查并明确标注：未校准。校准方法见第十一节"回填校准"。</p>
+
+<h3>这些指标具体到哪里去看</h3>
+
+<p>指标列出来还不够用——它得能对上一个具体的、每个月都打得开的地方。下表是中国口径下的取数位置：</p>
+
+<div class="tw"><table>
+<thead><tr><th>要看的东西</th><th>具体打开哪里</th><th>看什么细节</th></tr></thead>
+<tbody>
+<tr><td>对冲承诺</td><td>大型采购方的电子招标平台，公告<strong>全文与附件</strong></td><td>技术规范与验收条款里有没有"包赔""按产出结算""延长质保"</td></tr>
+<tr><td>复购与中标价</td><td>同一采购人 ＋ 同一标的物的历次中标公示</td><td>第二次、第三次的价格与数量，别只看第一次的金额</td></tr>
+<tr><td>厂商收入结构</td><td>招股书、问询回复、年报分部数据</td><td>"行业应用"这个大类被拆开之后，<strong>明确工业生产</strong>那一项的绝对值与占比</td></tr>
+<tr><td>零部件国产化与交期</td><td>上市零部件厂商的定期报告</td><td>在手订单、产能利用率、交货期变化——比整机厂的口径干净</td></tr>
+<tr><td>标准阶段码</td><td>标准组织官网</td><td><strong>stage 数字本身</strong>，不看媒体转述的"即将出台"</td></tr>
+<tr><td>停产与接口废弃</td><td>厂商官网的产品生命周期公告页</td><td>这是消费端唯一真正的先行信号，而且它主动找上门</td></tr>
+<tr><td>本地岗位变化</td><td>本地规上企业的招聘岗位职责原文</td><td>是否开始要求"设备＋软件"复合能力，不看薪资看职责</td></tr>
+</tbody>
+</table></div>
+
+<p><span class="ev j">判断</span> 这张表最实际的价值是<strong>它把"关注 AI"变成了每月两小时的固定动作</strong>。看不完所有新闻是常态，但这七个地方是有限的、可穷尽的，而且它们比新闻早。</p>
+
+<h3>一个把先行指标用错的现成例子</h3>
+
+<p>2025 年全球人形机器人出货量同比数百个百分点的增长，被广泛当作"物理 AI 加速"的先行信号。<span class="ev i">推断</span> 但按前面口径课那一节：某头部厂商同期人形收入里，<strong>明确工业场景约占 2.6%</strong>（单家·三季度），其余是科研、教育、消费与展厅导览。<em>这个数不能反过来当成"行业工业占比＝2.6%"——它能否证的只有一件事：用出货增速证明"进工厂"不成立。</em></p>
+
+<div class="claim">这个指标的提前量不是"短"，是根本不存在——它测的是另一个目标事件（研究平台与展示品的销量），不是"机器进车间"。先行指标之所以先行，前提是它和目标事件之间有因果链；链断了，再早也没用。</div>
+
+<p>所以每次拿一个指标当先行信号之前，先补一句话：<em>"它通过什么机制导致我关心的那件事发生？"</em>这句话说不出来，那个指标就只是一个走得比较快的数字。</p>
+
+<h2><span class="num">第十节 · 当期指标</span>确认现在正在发生什么</h2>
+
+<p>这一类最容易被忽略，但它是<strong>先行指标能不能兑现的验证层</strong>——先行指标说"要来了"，当期指标说"真的来了没有"。很多方向的先行信号很漂亮，当期读数却一直上不去，那就是没兑现。</p>
+
+<div class="tw"><table>
+<thead><tr><th>指标</th><th>它确认什么</th><th>可得性</th></tr></thead>
+<tbody>
+<tr><td><strong>在役设备的人工干预率</strong></td><td>部署到底有没有真的减人。<em>这是全表最诚实的一个数</em>——干预率不降，就是没兑现</td><td><span class="lv h">私有</span></td></tr>
+<tr><td><strong>日运行小时与可用率</strong></td><td>买回去到底在不在跑。演示机与生产机的差别全在这两个数上</td><td><span class="lv h">私有</span></td></tr>
+<tr><td><strong>验收工时与现场工程师天数</strong></td><td>部署成本是否真的在降；第二个客户与第十个客户的差距</td><td><span class="lv h">私有</span></td></tr>
+<tr><td><strong>当期交付与验收量</strong>（不是中标量）</td><td>从「采购意图」到「真的装上了」的转化率</td><td><span class="lv m">中</span></td></tr>
+<tr><td><strong>备件消耗量与服务工单量</strong></td><td>设备在真实运行的最硬证据——不跑的设备不消耗备件</td><td><span class="lv m">中</span></td></tr>
+<tr><td><strong>厂商当期收入结构</strong></td><td>钱到底从哪来。科研教育占比不降，说明还在 D2</td><td><span class="lv m">中</span></td></tr>
+<tr><td><strong>加速器现货租赁价与利用率</strong><br><span class="mono" style="font-size:11px">上游读数，不进主线</span></td><td>算力资本周期的实时温度（<strong>租金不是残值</strong>）。按第三节，<em>它不能当物理世界落地的信号</em>，只作背景</td><td><span class="lv m">中</span></td></tr>
+<tr><td><strong>数据中心当期用电量</strong><br><span class="mono" style="font-size:11px">上游读数，不进主线</span></td><td>算力部署的物理下限。同上，是背景不是主线</td><td><span class="lv m">中</span></td></tr>
+<tr><td><strong>按城市的付费在役车辆／载客里程／空驶里程</strong></td><td>无人驾驶的单位经济是否转正</td><td><span class="lv h">差</span></td></tr>
+<tr><td><strong>分季度环比的形状</strong>（脉冲还是台阶）</td><td>需求跟着注意力走还是跟着账走。至少要四个季度</td><td><span class="lv l">好</span></td></tr>
+<tr><td><strong>营收增速与利润增速的背离</strong></td><td>产品结构是在上移还是下移；毛利率被什么拉动</td><td><span class="lv l">好</span></td></tr>
+</tbody>
+</table></div>
+
+<div class="claim">当期指标里最有价值的三项——人工干预率、日运行小时、验收工时——全是私有数据。这就是「把自己的组织当早期部署场」这条建议真正的分量：它是普通人唯一能拿到当期读数的通道。</div>
+
+
+
+<h3>把三类指标填一遍：以地理围栏无人驾驶为例</h3>
+
+<p>空表看不出用法，填一遍就清楚了。同一个方向，三类指标各给一个读数：</p>
+
+<div class="tw"><table>
+<thead><tr><th>类别</th><th>该方向当前的读数</th><th>它说明了什么</th></tr></thead>
+<tbody>
+<tr><td><strong>先行</strong></td><td>对冲已经完成——车内没有持证司机，责任进了公司运营责任与商业保险</td><td>这是最强的一个先行信号，而且<strong>已经兑现了</strong>：它不再是"要来了"，是"来了"</td></tr>
+<tr><td><strong>当期</strong></td><td>周订单量多次披露走平，车队仍在扩张 → <strong>单车利用率在下降</strong>；所属分部单季经营亏损以十亿美元计</td><td>机制跑通了，账没跑通。<em>这正是先行亮了、当期没兑现的标准形态</em></td></tr>
+<tr><td><strong>滞后</strong></td><td>人类驾驶保费系统性高于自动驾驶——<strong>尚未出现</strong>；专业目录、认证体系也未成型</td><td>说明它还没走完。滞后指标此刻的价值是"确认还没到"，不是"预测"</td></tr>
+</tbody>
+</table></div>
+
+<p><span class="ev j">判断</span> 这一行填完，结论是自明的：<strong>成形，但未闭合。</strong>而且它给出了下一步该盯的唯一读数——按城市披露的付费在役车辆、载客里程与空驶里程，那三个数能算出单位经济是否转正。<em>在那之前，任何关于"无人驾驶要爆发了"的判断，都是在用先行指标替当期指标说话。</em></p>
+
+<div class="note">
+  <span class="lb">怎么给别的方向填这张表</span>
+  <p>三步：① 先行栏只填<strong>已经发生的动作</strong>（谁签了什么、谁承诺赔什么），不填趋势词；② 当期栏必须填<strong>带单位的数</strong>，填不出来就写"拿不到"——拿不到本身就是重要信息；③ 滞后栏允许填"尚未出现"，那是有效读数。</p>
+  <p>三栏都填完再下结论。只填一栏就下结论，是这套框架最常见的误用。</p>
+</div>
+
+<h2><span class="num">第十一节 · 滞后指标</span>只能事后确认的</h2>
+
+<p class="src">它们仍然有用——用来<strong>确认</strong>某件事真的发生了，防止把叙事当事实。但不能用来做前瞻决策。</p>
+
+<div class="tw"><table>
+<thead><tr><th>指标</th><th>滞后多久</th><th>它确认的是什么</th></tr></thead>
+<tbody>
+<tr><td><strong>二手／实际成交残值跳水</strong></td><td>损失已发生</td><td>某一代设备确实被作废了。对持有者是结算，不是预警</td></tr>
+<tr><td><strong>区域备件仓与到场服务半径出现</strong></td><td>较早</td><td>部署密度已足以养活服务网络——最难伪造，但出现时市场已在扩张期</td></tr>
+<tr><td><strong>行业出现新工种＋认证＋保险三件套</strong></td><td>较晚</td><td>短缺已被定价。对入学、转行来说太晚</td></tr>
+<tr><td><strong>高校职校专业目录新增专业</strong></td><td>5–8 年</td><td>制度确认。所有指标里最慢的一个</td></tr>
+<tr><td><strong>折旧年限政策变更、资产减值</strong></td><td>较早</td><td>会计确认。减值尤其滞后</td></tr>
+<tr><td><strong>裁员与招聘量下降</strong></td><td>最早</td><td>受宏观周期、外包化、岗位改名干扰，几乎分不出 AI 的因果贡献</td></tr>
+<tr><td><strong>监管出台「须人工确认」类规则</strong></td><td>事故之后</td><td>通常在大规模采用或出事之后才写入，是到达边界的确认</td></tr>
+<tr><td><strong>身边物品被迫更换</strong></td><td>整个过程的终点</td><td>这是本书第一节那个终点温度计。看到它，事情已经发生完了</td></tr>
+</tbody>
+</table></div>
+
+<div class="claim">最容易犯的错：拿「二手残值跳水」和「专业目录新增」当行动信号。前者是损失结算，后者滞后五到八年。真正能用的先行信号，几乎都藏在招标文件、厂商公告和本地招聘描述里。</div>
+
+<h3>三类指标的配合方式</h3>
+
+<div class="tw"><table>
+<thead><tr><th>顺序</th><th>问题</th><th>典型代表</th></tr></thead>
+<tbody>
+<tr><td><strong>先行</strong></td><td>要来了吗？</td><td>对冲承诺、重复采购、标准阶段码、停产公告</td></tr>
+<tr><td><strong>当期</strong></td><td>真的来了吗？</td><td>人工干预率、日运行小时、备件消耗、当期收入结构</td></tr>
+<tr><td><strong>滞后</strong></td><td>确实来过了。</td><td>残值跳水、服务网络成型、认证体系齐备、专业目录</td></tr>
+</tbody>
+</table></div>
+
+<p><span class="ev j">判断</span> 一个方向如果<strong>先行指标亮了但当期指标长期不动</strong>，通常有两种解释：一是被资本硬扛着（意愿在、单位经济不在），二是采购是行政铺开而非真实需求。<em>这两种都不构成加仓理由。</em>反过来，当期指标先动、先行指标没看到，往往说明你的先行指标选错了。</p>
+
+
+
+<h3>滞后指标真正的第二种用法：回填校准</h3>
+
+<p><span class="ev j">判断</span> 前面说过，第九节那张表里的"提前量"是赋值，没有历史校准。滞后指标恰恰是校准它的唯一工具。</p>
+
+<p>做法很简单，成本也低：<strong>每当某个方向的档位真的发生转换（比如某场景第一次出现按产出付费的重复采购），就回头把当时各个先行指标亮起的时间点记下来，算出真实提前量，替换掉表里的赋值。</strong>三五次之后，那张表就从"我猜的"变成"记录的"。</p>
+
+<div class="claim">先行指标负责下注，当期指标负责验证，滞后指标负责给前两者打分。一套只用先行指标的框架，永远不会知道自己错在哪；而知道自己错在哪，是这份东西存在的全部理由。</div>
+
+<p>这也是附录二那个追踪系统最该先做的一张表——不是预测表，是<strong>校准表</strong>。</p>
+
+<h2><span class="num">第十二节 · 噪音</span>错的方向与分辨表</h2>
+
+<h4>一、把 AI 当装饰加到既有产品上</h4>
+<p>把「AI」这个词删掉，购买理由还成立吗？成立＝营销周期，不带强制性。</p>
+
+<h4>二、不算成本账就上马的算力项目</h4>
+<p>算力接近大宗商品，成本决定生死。<span class="ev j">判断</span> 但防绝对化：质量、延迟、合规、生态仍能形成差异化，「只由成本决定」只对纯同质转售成立。</p>
+
+<h4>三、按三年折旧买、按六年经济寿命做的财务模型</h4>
+<p>若实际成交残值先崩，融资租赁的残值假设跟着崩。用会计和授信的老本行就够判。<strong>口径：租金不是残值。</strong></p>
+
+<h4>四、把军备竞赛的衍生需求当成物理世界落地的先行指标</h4>
+<p>见第三节。<strong>芯片、存储、电力、冷却这一波的驱动力是竞赛，不是应用。</strong>归因错了，会在拐点上判断反向。</p>
+
+<h4>五、把通用性做在身上而不是脑里</h4>
+<p>见第五节样本五。<strong>人形不只是时机不对，是形态错配</strong>——绝大多数物理场景的正确答案是专用形态加通用的脑。依据：某头部厂商进车间的收入占比约 2.6%（单家·三季度，不代表行业；而其行业应用里一半以上是展厅导览）、控制分层决定移动与操作本该解耦、安全标准仍在委员会草案。<em>看演示只看手，不看腿。</em></p>
+
+<h4>六、把「AI 提效」的主观感受当数据用</h4>
+<p>一项针对资深开源开发者的随机对照实验（METR，2025）给出三连读数：事前预测提速约 24%、事后自认提速约 20%、而秒表显示实际慢了约 19%。<strong>这类靠问卷与自述得出的效率提升都要打折。</strong>本例里三个读数的偏差方向一致（自述优于实测），但<em>一项实验不足以断定这个方向在所有场景里都固定</em>——能确定的是：自述与秒表可能反向，所以别只拿自述当证据。</p>
+
+<h4>七、低频场景坚持卖设备而不做服务</h4>
+<p>如果供应商在明显低频的场景里只肯卖设备、不肯按次收费，通常说明它自己也没算清账，或者不敢为效果负责。</p>
+
+<div class="tw"><table>
+<thead><tr><th>看什么</th><th>噪音</th><th>信号</th></tr></thead>
+<tbody>
+<tr><td>效率证据</td><td>用户自述、问卷、案例</td><td>对照实验、验收工时、交付周期</td></tr>
+<tr><td>演示内容</td><td>跑跳、后空翻、才艺</td><td>无剪辑的连续接触作业</td></tr>
+<tr><td>计价方式</td><td>卖出多少台</td><td>按件、按工时、按产出</td></tr>
+<tr><td>客户结构</td><td>科研、教育、展会、导览</td><td>工厂按产出付钱</td></tr>
+<tr><td>阶段</td><td>规划、意向、框架协议</td><td>中标、交付、验收、在役</td></tr>
+<tr><td>运行数据</td><td>单次演示成功</td><td>日运行小时、人工干预率、可用率</td></tr>
+<tr><td>配套</td><td>无备件与维修网络</td><td>区域备件仓与到场服务半径</td></tr>
+<tr><td>对冲</td><td>无人承担失败</td><td>有保单、有包赔、有大客户用资产负债表扛</td></tr>
+</tbody>
+</table></div>
+
+<div class="note">
+  <span class="lb">人形的噪音不会消失</span>
+  <p>它最强的功能不是干活，是<strong>让不懂技术的人在三秒内理解「这是通用机器人」</strong>。这是叙事压缩，融资与政策场合刚性需要它。当成稳定干扰源，绕过去读表。</p>
+</div>
+
+<h3>五分钟体检：拿到一条消息之后</h3>
+
+<p>上面七条是分类。真正要用的时候，只需要按顺序问五个问题——多数消息在第二问就出局了。</p>
+
+<div class="tw"><table>
+<thead><tr><th>顺序</th><th>问题</th><th>出局的典型</th></tr></thead>
+<tbody>
+<tr><td>①</td><td><strong>这个数字的口径是什么？</strong>（见口径课的五问）</td><td>下线当出货、亩次当亩、换了分母的密度</td></tr>
+<tr><td>②</td><td><strong>钱付了没有，为什么付？</strong></td><td>规划、意向、框架协议、战略合作——全部出局</td></tr>
+<tr><td>③</td><td><strong>它属于哪条时钟？</strong>（算力资本 / 专用自动化 / 通用人形）</td><td>拿算力开支的热度论证机器人进厂</td></tr>
+<tr><td>④</td><td><strong>它测的是我关心的那件事吗？</strong></td><td>出货增速与"进车间"之间没有因果链</td></tr>
+<tr><td>⑤</td><td><strong>如果它是真的，我下一步会做什么不同的事？</strong></td><td>答不上来＝这条消息对你没有决策价值，看过就好</td></tr>
+</tbody>
+</table></div>
+
+<p><span class="ev j">判断</span> 第五问是这张表里最省时间的一条。<em>绝大多数让人心跳加速的行业新闻，通过不了第五问。</em>它们不改变任何人的任何动作，只改变情绪——而情绪是这条主线上最贵的成本。</p>
+
+<div class="part">
+  <div class="pk">第三部分</div>
+  <div class="pt">怎么办：钱、时间与选择权</div>
+  <div class="pd">在前面两部分的信息基础上，不同位置的人分别该怎么决策。每条都挂到具体的先行或当期指标上——不挂指标的建议不算建议。</div>
+</div>
+
+<h2><span class="num">第十三节 · 怎么跟</span>八类决策，分别挂在哪个指标上</h2>
+
+<p>决策类型不该靠临时想起来什么就列什么。这一节用一个能自检的骨架：<strong>任何一个决定，本质都是拿一种"货币"去换另一种</strong>——而个人手里只有五种货币。按这五种排一遍，覆盖就是完整的。</p>
+
+<div class="tw"><table>
+<thead><tr><th>你付出的</th><th>对应的决策</th><th>挂在本书哪个指标上</th></tr></thead>
+<tbody>
+<tr><td rowspan="3"><strong>钱</strong></td><td>① 投资：配出去</td><td>重复采购 ＋ 中标价降幅收窄（第九节）</td></tr>
+<tr><td>② 消费：花出去，买什么、什么时候换</td><td>接口废弃预告、配件停产公告（第九节）</td></tr>
+<tr><td>③ <strong>借：借进来，期限定多长</strong></td><td>这件资产的经济寿命与残值（第三节、第十二节）</td></tr>
+<tr><td rowspan="2"><strong>时间</strong></td><td>④ 学习：投进去</td><td>四类能力，由主线直接推出</td></tr>
+<tr><td>⑤ <strong>职业：卖出去——卖给谁、在哪儿、什么形态</strong></td><td>本地岗位描述、服务网络密度（第九、十一节）</td></tr>
+<tr><td><strong>注意力</strong></td><td>⑥ 看什么、不看什么、多久看一次</td><td>七个取数位置 ＋ 噪音分辨表（第九、十二节）</td></tr>
+<tr><td><strong>风险</strong></td><td>⑦ 保障与责任：谁替你承担</td><td>费率的结构性变化（第五节样本一）</td></tr>
+<tr><td><strong>选择权</strong></td><td>⑧ 什么时候<strong>不动</strong></td><td>时钟是否闭合（第十一节）</td></tr>
+</tbody>
+</table></div>
+
+<p><span class="ev j">判断</span> 这张表也是一个自检工具：<em>当你觉得"好像还该做点什么"的时候，对着这五行找——如果五种货币你都没打算动，那就是不该动；这本身也是一个决定。</em></p>
+
+<p>下面每条都挂到第九、十节的具体指标上。<strong>不挂指标的建议不算建议。</strong></p>
+
+<h3>投资：资本配置的观察方向</h3>
+
+<div class="note">
+  <span class="lb">读这一节之前，先把一件事分开</span>
+  <p><strong>"产业结构对某一环有利" ≠ "这一环的股票值得买"。</strong>中间还隔着估值、竞争格局、利润能不能留在这一环、议价权、资本强度、政策补贴扭曲、以及价值在产业链上迁移——这些本书一个都不回答。</p>
+  <p>所以下面给的是<em>观察方向</em>，不是标的，也不是配置建议。<strong>这一节是全书最容易被截出去误读的一段，请连同这个框一起读。</strong></p>
+</div>
+
+<div class="tw"><table>
+<thead><tr><th>方向</th><th>为什么</th><th>切换线（先行指标）</th></tr></thead>
+<tbody>
+<tr><td><strong>维修运维与备件</strong></td><td>停机成本随自动化上升，维修最难被自动化吸收；两百万台存量的维保需求是确定的</td><td>本地出现持证维修要求与认证培训</td></tr>
+<tr><td><strong>机电与冷却改造</strong></td><td>进程最深的那一层的摩擦面，是被迫的资本开支</td><td>高密度机架的改造报价出现标准化产品</td></tr>
+<tr><td><strong>本地集成与工作单元改造</strong></td><td>技术会标准化，落地永远本地化</td><td>同类场景出现重复采购</td></tr>
+<tr><td><strong>核心零部件国产替代</strong></td><td>减速器、丝杠、编码器、力／触觉传感器是真实短板；<strong>而且它既服务人形也服务专用形态，谁赢都要用</strong>——押它不需要押对形态</td><td>国产化率与交货期同时改善</td></tr>
+<tr><td colspan="3" style="background:var(--panel2)"></td></tr>
+<tr><td><em>不排前面：存量机械臂"换脑"</em></td><td>八条障碍（控制器专有、老设备无力控触觉、改控制器使认证失效、稳定工序边际收益低、柔性任务最后仍要改整个工作单元、异质难复制、停线成本、跨本体仍需标定）</td><td>出现可复制的改造类订单与回收期证据</td></tr>
+<tr><td><em>不排前面：电力最后一百米</em></td><td>那是照搬美国瓶颈——中国电力是区域性约束，不是全国性硬约束</td><td>—</td></tr>
+</tbody>
+</table></div>
+
+<p><span class="ev j">判断</span> 通用的切换纪律：<strong>在「重复采购 ＋ 中标价降幅收窄」同时出现之前，投入限制在"买认知"的规模；在那之后，才谈"买产能"。</strong>这两笔钱性质不同，别用同一个时钟。</p>
+
+
+<h4>个人能参与的形式，其实只有四种</h4>
+
+<p>上面四个方向是<strong>结构判断</strong>，不是标的。而结构判断要落到个人身上，得先想清楚参与形式——这一层比选方向更决定结果：</p>
+
+<div class="tw"><table>
+<thead><tr><th>形式</th><th>实际情况</th></tr></thead>
+<tbody>
+<tr><td><strong>二级市场</strong></td><td>能参与，但你买到的是"叙事定价后的价格"。这条线上叙事与深度的排序经常相反（第十二节），所以这里最需要的是纪律不是眼光</td></tr>
+<tr><td><strong>一级市场</strong></td><td>绝大多数人没有通道，有通道也缺信息优势。不展开</td></tr>
+<tr><td><strong>投进自己的组织</strong></td><td><em>如果你有一摊事，这是回报率最不确定但信息优势最大的一种</em>——它同时买回了第十节那三个私有读数，而那些数别处买不到</td></tr>
+<tr><td><strong>投进自己的能力</strong></td><td>门槛最低、可迁移、不会因为押错形态而归零。四类能力见后面"学习"那条</td></tr>
+</tbody>
+</table></div>
+
+<p><span class="ev j">判断</span> 对多数人来说，后两种的性价比高于前两种，而且它们和这本书的判据是同一套：<strong>看重复次数、看谁替你承担后果、看接口开不开放。</strong><em>本书不给具体标的、不猜公司——不是谨慎，是因为给标的需要的是另一套完全不同的东西（估值、仓位、流动性、退出），而那套东西的错误代价由读者承担。</em></p>
+
+<h3>消费</h3>
+
+<div class="tw"><table>
+<thead><tr><th>现在</th><th>什么时候改变</th></tr></thead>
+<tbody>
+<tr><td><strong>不用换。</strong>消费端的强制性换新还没开始，带 AI 标签的消费品绝大多数是装饰型换新</td><td>看到<strong>接口废弃预告、配件停产公告、服务协议改条款</strong>——这三样提前数月到数年，且厂商主动发</td></tr>
+<tr><td><strong>本来就该买的长寿命耐用品，优先选接口开放、能换供应商的</strong></td><td>这是购买时唯一能提前用的规则；不兼容出现时，锁死在单一生态里的作废得最快</td></tr>
+<tr><td><strong>出行方式暂不改变</strong></td><td>看无人驾驶运营方能否按城市披露出正毛利（利用率仍在降）——那之后"拥有车辆"的必要性才开始真的下降</td></tr>
+<tr><td>判据：把「AI」从产品介绍里删掉，购买理由还成立吗？</td><td>成立＝装饰型换新，不带强制性，热度一退回到原有换机节奏</td></tr>
+</tbody>
+</table></div>
+
+
+
+<h4>什么时候真的该换：三个先后顺序</h4>
+
+<p>"不用换"不等于"永远不用换"。真到了该换的时候，它会按固定顺序给你信号——记住顺序比记住结论有用：</p>
+
+<ol>
+<li><strong>先来的是公告，不是体验。</strong>接口废弃预告、配件停产、服务协议改条款——这三样厂商会主动发，提前数月到数年。<em>东西还好好用的时候，它的死期已经公告过了。</em></li>
+<li><strong>其次是配件与维修价格。</strong>备件涨价、维修点变远、师傅说"这型号不好配件了"——这是公告的现实版，通常晚半年到两年。</li>
+<li><strong>最后才是你自己觉得不好用。</strong>等到体验变差再换，中间那段时间你已经为不兼容付过一次隐性的费用了。</li>
+</ol>
+
+<p><span class="ev j">判断</span> 这条与前面"借"那条要连起来用：<strong>换新的时点由公告决定，付款方式由资产类型决定。</strong>看到停产公告就该开始准备，但不代表要用长期负债去买一件"像加速器"的东西——<em>被迫换新和值得借钱，是两个独立的判断。</em></p>
+
+<h3>借：负债与期限匹配</h3>
+
+<p>这是全书唯一一条不需要预测技术、只需要算清账的建议，也是最容易被忽略的一条：<em>大多数人在决定"买不买"的时候很谨慎，在决定"借多久"的时候却几乎不想。</em></p>
+
+<div class="claim">贷款期限不要长过这件资产的经济寿命。如果非要长，那多出来的年限就是你在替它的贬值单独买单——资产已经不在了，账还在。</div>
+
+<p><span class="ev i">推断</span> 第三节那条判断可以直接翻译到个人侧。那里说的是：<strong>变压器、配电、冷却管路像铁轨；加速器不像。</strong>同一把尺子量个人资产，分三类：</p>
+
+<div class="tw"><table>
+<thead><tr><th>类型</th><th>特征</th><th>负债怎么配</th></tr></thead>
+<tbody>
+<tr><td><strong>像铁轨的</strong><br>房屋结构与地段、基础装修、长寿命基础设施</td><td>寿命以十年计、退出成本低、二手市场成熟、贬值平缓</td><td>可以配长期负债。这一类是长期限唯一站得住的地方</td></tr>
+<tr><td><strong>中间的</strong><br>车辆、通用生产设备、可改造的耐用品</td><td>寿命中等，取决于两件事：<strong>残值市场是否成熟、接口是否开放</strong></td><td>期限对齐残值曲线，别超过它的二手活跃期。接口封闭的那些要更短</td></tr>
+<tr><td><strong>像加速器的</strong><br>消费电子、算力设备、押注某一代技术的整机</td><td>代际短、与软件生态耦合、下一代可能让上一代直接接不上</td><td><strong>不上长期负债，最好不借。</strong>"三年折旧、六年还款"是第十二节点名的那种噪音，个人侧一样成立</td></tr>
+</tbody>
+</table></div>
+
+<h4>三条硬自检</h4>
+
+<ul>
+<li><strong>三年测试：</strong>如果这件东西的二手市场在三年内可能不存在，那么它的贷款期限就不该超过三年。<em>二手残值跳水是滞后指标（第十一节）——它出现的时候钱已经没了，所以期限必须在买入当天定死，不能等信号。</em></li>
+<li><strong>别只看月供占收入比。</strong>那是流动性判据，不是价值判据。它回答"我还得起吗"，不回答"我还的是什么"。真正会出事的是<strong>期限错配</strong>：短寿命资产配长期负债，等于在资产已经死掉之后继续还款。</li>
+<li><strong>问接口，不问性能。</strong>同样两件设备，能换供应商、能换配件、能改造的那件，残值高得多——这是第三节"接口开放性"在个人账本上的直接体现。锁死在单一生态里的东西，作废得最快，也最难卖。</li>
+</ul>
+
+<p><span class="ev j">判断</span> 对有实体组织的人，这条还有一个企业版：<strong>融资租赁与设备贷的残值假设，是这一轮最容易出问题的地方。</strong>如果实际成交残值先崩，按六年经济寿命做的模型会跟着崩，而账面上要到减值那一刻才看得见。第十二节把这条列为噪音之三，这里给出它的动作版本——<em>在签期限的那一刻，就把残值假设写下来并注明依据；三年后拿实际成交价对一次账。</em>这件事不做，事后永远说不清是判断错了还是运气不好。</p>
+
+<h3>学习</h3>
+
+<p><span class="ev i">推断</span> 四类能力从主线直接推出，不是从教育理念推出：</p>
+
+<div class="tw"><table>
+<thead><tr><th>能力</th><th>由主线的哪一条推出</th></tr></thead>
+<tbody>
+<tr><td><strong>能对后果负责</strong></td><td>深度从 D3 走到 D4 靠对冲，而对冲的另一端总要有人真的能做判断——不是点头。这个位置随深度增加而更值钱</td></tr>
+<tr><td><strong>会改造工作单元</strong></td><td>进得最深的地方全是"环境被改造过"的。这件事需要同时懂设备、懂流程、懂现场的人，而现在没有专业在系统培养</td></tr>
+<tr><td><strong>会诊断与维修新东西</strong></td><td>维修横穿所有层，最难被自动化自身吸收——现场、非结构化、需担责</td></tr>
+<tr><td><strong>能在现场与模型之间翻译</strong></td><td>把物理约束讲给做模型的人，把能力边界讲给厂长。这一层的缺口比技术缺口更大</td></tr>
+</tbody>
+</table></div>
+
+<h4>这四类能力合起来，已经有一个现成的名字</h4>
+
+<p><span class="ev j">判断</span> 把上面四条并排看，会发现它描述的是同一种人：<strong>能到现场、听得懂业务、动得了流程、并且对结果签字的人。</strong>这两年这类角色在软件行业有了一个流行的称呼——<strong>驻场工程师（Forward Deployed Engineer，FDE）</strong>：不坐在总部写通用产品，而是驻在客户那里，把通用能力磨进一个具体场景里。</p>
+
+<p>但目前 FDE 这个词几乎只用在软件侧：交付的是系统集成、数据管道、工作流。<em>本书的推论是：这个角色会在物理侧长出一个版本，而且需求量更大。</em>因为物理世界比软件世界更不标准——每一条产线的工装、料箱、节拍、安全区都不一样，<strong>"把通用能力磨进一个具体场景"这件事，在原子侧比在比特侧重得多。</strong></p>
+
+<div class="claim">软件侧的 FDE 交付的是一套跑起来的流程；物理侧的 FDE 要交付的是一个改造过的工作单元——而后者才是第三节说的那条"最硬的约束"真正被解开的地方。这个岗位现在几乎没有专业在系统培养，招聘描述里也还没有统一的名字。</div>
+
+<p><span class="ev i">推断</span> 用第十节那三个私有读数去验证它值不值钱：<em>人工干预率、验收工时、第二个客户与第十个客户的集成成本——能把这三个数往下压的人，就是这个角色的价值所在。</em>而这三个数正是外部拿不到、只有在组织内部才看得见的东西。</p>
+
+<p><span class="ev j">判断</span> 最不值得押的是<strong>某项具体操作技能的熟练度</strong>——因为深度推进的机制恰恰是把"熟练动作"从人身上拆出来装进专用机器。<em>但要注意分寸：拆走的是动作，不是现场判断。只会按按钮的人危险，懂这台设备为什么会坏的人不危险。</em></p>
+
+<p><strong>不要等的信号：</strong>新工种＋认证＋保险三件套齐全（滞后三到五年）、专业目录新增（滞后五到八年）。<strong>该看的：</strong>本地招标公告里出现设备智能运维与集成类服务采购、本地规上企业岗位描述开始要求复合能力。</p>
+
+
+<h3>职业：卖时间——卖给谁、在哪儿、什么形态</h3>
+
+<p>学习回答"学什么"，这一条回答"以什么方式把它卖出去"。两件事经常被混在一起，但它们挂的指标完全不同。</p>
+
+<h4>三问定位一份工作</h4>
+
+<div class="tw"><table>
+<thead><tr><th>问</th><th>怎么答</th><th>含义</th></tr></thead>
+<tbody>
+<tr><td><strong>① 它卖的是动作，还是判断？</strong></td><td>动作＝可被拆出来、可被验证、可被摊薄；判断＝要承担后果</td><td>深度推进的机制就是把熟练动作从人身上拆下来装进专用机器。卖动作的位置随时钟 B 推进而变薄</td></tr>
+<tr><td><strong>② 它在哪条时钟上？</strong></td><td>算力资本（A）／专用自动化（B）／通用人形（C）</td><td>A 周期性强、随资本开支起落；B 是当前主战场；C 目前九成收入来自科研教育消费</td></tr>
+<tr><td><strong>③ 它需不需要有人签字？</strong></td><td>安全、验收、维修资质、临床、司法</td><td>需要签字的位置受冲击最慢——那不是能力问题，是责任问题（第一节判据一）</td></tr>
+</tbody>
+</table></div>
+
+<p>举两个就在同一条产线上、隔着十米的岗位，差别一眼就看得出来：</p>
+
+<div class="tw"><table>
+<thead><tr><th></th><th>外观质检员</th><th>现场工艺与换型调试员</th></tr></thead>
+<tbody>
+<tr><td>卖的是什么</td><td>"看缺陷"这个<strong>动作</strong></td><td>"为什么这批件总卡料"——现场物理诊断与跨设备的综合<strong>判断</strong></td></tr>
+<tr><td>验证成本</td><td>低。对错当场可判，且能自动比对</td><td>高。判断对不对要等换型跑顺了才知道</td></tr>
+<tr><td>要不要为后果签字</td><td>不需要</td><td>要——停线损失挂在他身上</td></tr>
+<tr><td>处境</td><td>正被经典视觉与视觉大模型快速吃掉</td><td>位置依然极厚，而且随自动化率上升更厚</td></tr>
+</tbody>
+</table></div>
+
+<p><span class="ev j">判断</span> 两个岗位的技术含量差别没有很多人想的那么大，<strong>差的是三问的答案。</strong>这也说明"AI 会取代哪些工作"这个问题问错了粒度——<em>被取代的从来不是一个职业，是一个职业里可被便宜验证、又不必签字的那一段。</em></p>
+
+<p><span class="ev j">判断</span> 第三问要收窄一次：<strong>签字权留下，不等于工作量留下。</strong>完全可能出现"签字还在、判断已经不在"——人变成一道形式确认，一个人一天签几百次，岗位数照样塌。<em>真正安全的不是"这个岗位需要签字"，而是：签字的人是否仍握有不可形式化的判断，并且责任真的会追索到他。</em>两者一字之差，处境天差地别（第十四节把"人工形式确认空转"列为框架风险，就是这一条的反面）。</p>
+
+<h4>地域：跟着工作单元走，不跟着总部走</h4>
+
+<p><span class="ev i">推断</span> 这条线上的就业机会，不集中在做模型的地方，集中在<strong>需要改造工作单元的地方</strong>——产线、仓库、电网、农场、港口。判据是现成的：<em>本地有没有出现设备智能运维与集成类的服务采购、区域备件仓与到场服务半径有没有建起来</em>（后者是滞后指标，但它一旦出现，说明这里的部署密度已经养得活服务网络）。</p>
+
+<p>反过来的提醒：<strong>为追热点而换城市、换行业，在时钟尚未闭合之前，是把选择权换成了赌注。</strong>——这一点在第⑧条里单独说。</p>
+
+<h4>形态：受雇、按次接活，还是一人多机</h4>
+
+<p><span class="ev i">推断</span> 农业给的那条经验对个人同样成立：<strong>低频但价值密度高的能力，正确形态是服务不是雇佣。</strong>如果你的技能在单个雇主那里一年只用得上几次，全职就是把自己的频次乘数摁死；跨雇主按次接活，等于用服务把频次补回来——这正是植保无人机那门生意的个人版。</p>
+
+<p>还有第三种正在变多的形态：<strong>一人多机</strong>。第五节讲过，一人操作多台设备（无人机、仓内远程操作、部分手术）已经在把一个人的覆盖半径放大到多台设备上。<em>这类岗位的特征是：动作被机器接走了，但责任还挂在你身上。</em>按上面三问，它同时满足"卖判断"和"需要签字"——是这条线上目前最稳的一类位置。</p>
+
+<div class="claim">别问"我这份工作会不会被 AI 取代"，问三件事：我卖的是动作还是判断、我在哪条时钟上、有没有人必须为我的结果签字。三个答案凑起来，比任何一份"最容易被替代职业排行榜"都准。</div>
+
+<h3>注意力：每月两小时，只看七个地方</h3>
+
+<p>注意力是唯一一种花掉之后拿不回来、也借不到的货币。这一条给的是日程，不是建议。</p>
+
+<div class="tw"><table>
+<thead><tr><th>频率</th><th>做什么</th><th>出处</th></tr></thead>
+<tbody>
+<tr><td><strong>每月约两小时</strong></td><td>只打开那七个地方：招标公告全文与附件、同一采购人的历次中标公示、厂商招股书与年报分部数据、零部件厂商定期报告、标准组织的阶段码、厂商产品生命周期公告页、本地规上企业的岗位职责原文</td><td>第九节那张"具体打开哪里"</td></tr>
+<tr><td><strong>随手，五分钟</strong></td><td>看到一条消息，按五问过一遍：口径→钱付了没→哪条时钟→测的是不是我关心的那件事→如果是真的我会做什么不同的事</td><td>第十二节五分钟体检</td></tr>
+<tr><td><strong>每季度</strong></td><td>如果你有组织：读自己的三个私有读数——人工干预率、日运行小时、验收工时</td><td>第十节</td></tr>
+<tr><td><strong>每年一次</strong></td><td>回填校准：把当年真的发生了档位转换的那些方向，回头记下先行指标当时提前了多久，替换掉表里的赋值</td><td>第十一节</td></tr>
+</tbody>
+</table></div>
+
+<p><strong>同样重要的是明确不看什么：</strong>演示视频与后空翻、融资额与估值新闻、模型榜单排名、"某某又发布了"。<span class="ev j">判断</span> 这些内容的共同点不是假，是<em>它们通不过五问里的最后一问</em>——知道了也不会改变你的任何动作。<strong>看它们的成本不是时间，是它们会把你的判断锚在热度上，而这条线上热度的排序和深度的排序经常正好相反。</strong></p>
+
+<h3>风险：保险条款比发布会诚实</h3>
+
+<p>第五节样本一里最锋利的那句话，个人侧有一个直接用法：<em>把人赶下驾驶座的不会是法条，是保费。</em>但在国内要再退一步：<strong>很多工业责任风险根本没有透明费率，能读到的是条款不是价格</strong>——所以这一节真正该盯的是保单文本，不是报价单。</p>
+
+<p><span class="ev i">推断</span> 因为保险公司的定价必须对着自己的赔付负责，它比立法机构早很多年动手，也不需要投票。所以：<strong>当某一类行为的费率开始出现结构性变化（不是普涨普跌，是分层），说明市场已经在给这件事重新定价——那是这条线上最早、最诚实的一批信号之一。</strong></p>
+
+<div class="tw"><table>
+<thead><tr><th>看哪里</th><th>看什么变化</th><th>它在说什么</th></tr></thead>
+<tbody>
+<tr><td>车险</td><td>人类驾驶与带辅助/自动系统的费率是否开始分层</td><td>第一次系统性反转，就是第十一节那个滞后指标真的亮了</td></tr>
+<tr><td>设备保修与责任条款</td><td>改控制器、改末端是否导致保修与认证失效</td><td>接口开放性在合同层面的体现（第三节）</td></tr>
+<tr><td>职业与雇主责任类保障</td><td>哪些岗位的费率被单独拎出来</td><td>市场认为风险正在向哪个位置转移</td></tr>
+<tr><td><strong>特种设备险、雇主责任险的<em>除外责任</em></strong></td><td>是否开始把"未经认证的自主机器人接入"列为免赔情形</td><td><strong>收紧信号</strong>：保险方认为这一类风险目前不可承保。它出现得比费率变化更早</td></tr>
+<tr><td><strong>针对"人机协作工位"的标准批单</strong></td><td>是否出现可批量适用的标准条款，而不是一单一议</td><td><strong>这才是 D3→D4 的合规通路真正打开的标志</strong>——能标准化承保，说明风险已经可定价、可复制</td></tr>
+</tbody>
+</table></div>
+
+<p><span class="ev i">推断</span> 上面后两行比前三行更好用，理由很实际：<strong>条款是公开的，费率往往不公开。</strong>除外责任写在保单文本里，任何人都能读到；而费率要有报价才看得见。<em>所以在这条线上，"哪些情形被写进免赔"是比"贵了多少"更早、也更容易拿到的信号。</em>而当免赔条款开始松、标准批单开始出现，就是承保方判断"这件事已经可以定价了"——那一刻的信息量，大过任何一次发布会。</p>
+
+<p><span class="ev j">判断</span> 纪律只有一条：<strong>不因为预期而提前买入任何"新技术相关"的保障产品。</strong>费率分层本身就是证据；在证据出现之前买入，买的是叙事不是保障。<em>本书不给具体产品建议，只给这一条观察方法——因为保障产品的条款差异远大于它们名字的差异，那是另一个专业的事。</em></p>
+
+<h3>选择权：什么时候不动</h3>
+
+<p>前面七条都在讲做什么。这一条讲的是：<strong>在三条时钟里只有一条真正成形的时候，"不动"是有正期望的决策，而不是拖延。</strong></p>
+
+<p><span class="ev j">判断</span> 行动的成本是可见的（花了多少钱、换了哪座城市），不行动的成本是不可见的（错过了什么）。所以人天然高估不行动的代价——<em>但真正贵的是第三种：不可逆的行动。</em>第一节那条判据在这里再次成立：<strong>凡是不可逆的决定，要求的证据门槛应当高一档。</strong></p>
+
+<div class="tw"><table>
+<thead><tr><th>保留选择权的具体做法</th><th>对应的判据</th></tr></thead>
+<tbody>
+<tr><td>期限短一点，宁可贵一点</td><td>期限错配的代价大于利差</td></tr>
+<tr><td>选能换供应商、能改造的那一件</td><td>接口开放性</td></tr>
+<tr><td>不做不可逆的绑定：不为一个尚未闭合的方向搬家、转行、押上全部积蓄</td><td>时钟 C 仅启动；B 成形未闭合</td></tr>
+<tr><td>先小规模买认知，别急着买产能</td><td>「重复采购＋中标价降幅收窄」同时出现之前</td></tr>
+</tbody>
+</table></div>
+
+<div class="claim">这条线上目前最好的姿势不是押注，是把自己放在一个"消息变了就能改主意"的位置上。写下改变判断的条件，然后按月去看那七个地方——这两件事加起来，比任何一次押注都便宜。</div>
+
+<h3>三类人的额外提醒</h3>
+
+<div class="who">
+  <div class="h">有实体组织的经营者</div>
+  <div class="n">你有一个别人没有的位置</div>
+  <dl>
+    <dt>做什么</dt><dd>把自己的组织当早期部署场。收益不是省钱，是<em>比所有人早两三年拿到真实成本与故障率</em>。<strong>按第十节，这是你唯一能拿到当期私有读数的通道</strong>——外部只能看噪声指标，你能看到验收工时、干预率、可用率、备件消耗。</dd>
+    <dt>纪律</dt><dd>不买通用的东西，不买没有备件网络的东西，不为对外讲故事而部署。<strong>低频场景优先谈按次服务而不是买设备</strong>——农业早就证明了这条。</dd>
+    <dt>财务纪律</dt><dd><strong>不要用短期流动资金贷款去做长线技改。</strong>拿 1–2 年的短贷去搏一台五年才回本的定制非标设备，是实体中小企业做自动化最常见的死法——一旦客户砍单或上游接口废弃，设备还立在产线上，现金流先断了，直接变成流动性挤兑。<em>另一半同样要命：专用非标设备不要按高残值入账，也别拿它去做抵押假设——越是为你一家定制的东西，二手市场越接近于零。</em>这是前面「借」那一条的组织版，只是代价大一个量级。</dd>
+  </dl>
+</div>
+
+
+<h3>先算的那张账：一台设备值不值得上</h3>
+
+<p>本书前面给的是判据（失败代价可圈定、环境可被改造、重复次数足够多、成功便宜可测），还有需求侧那两个乘数（频次 × 规模、被替代劳动的相对价格）。但判据不是算式——<strong>它告诉你卡在哪，不告诉你这一台该不该买。</strong>下面这张是把那几条压成一个能填的最小算式。<em>它不是财务模型，是一张能在会上当场算完的草稿纸。</em></p>
+
+<div class="tw"><table>
+<thead><tr><th></th><th>填什么</th><th>最容易填错的地方</th></tr></thead>
+<tbody>
+<tr><td><strong>A 一次性投入</strong></td><td>设备价 ＋ 集成与工装改造 ＋ 停线调试损失 ＋ 验收前的工程师人天</td><td><em>集成与改造常常大于设备价本身</em>。只填设备报价，是这张表最常见的死法</td></tr>
+<tr><td><strong>B 每年经常性支出</strong></td><td>维保 ＋ 备件 ＋ 能耗 ＋ 看护/干预工时 ＋ 每次换型的重新调试</td><td>"干预工时"要按第十节那个<strong>人工干预率</strong>填，不按"设计上不需要人"填</td></tr>
+<tr><td><strong>C 年作业次数</strong></td><td>这台设备一年真正被用到的次数或小时</td><td>这就是第一节那个<strong>频次乘数</strong>。农业那条经验在这里生效：如果 C 小得算不过来，答案不是别买，是<em>别买——改成按次买服务</em></td></tr>
+<tr><td><strong>D 单次被替代的人工成本</strong></td><td>被替代的那段人工，折到每一次作业上</td><td>这是第一节那个<strong>相对价格乘数</strong>。同一套设备在德国和在国内的阈值差一个数量级，别抄别人的结论</td></tr>
+<tr><td><strong>E 失败的期望损失</strong></td><td>失败概率 × 单次损失 × C；没人兜底时这一项全部由你自留</td><td>判据一在账上的样子。<em>如果这一项算不出来，说明你其实不知道自己在承担什么</em></td></tr>
+</tbody>
+</table></div>
+
+<div class="claim">回本年数 ≈ A ÷ (C × D − B − E)。<br>分母为负，再便宜也不要买；分母很小，正确形态是按次买服务而不是买设备；分母够大但 A 里的集成费占大头，说明你买的其实是一次工作单元改造——那笔钱的寿命比设备长，可以单独算。</div>
+
+<p class="src">这张表刻意不给数字。给了就会被抄，而抄来的数字在别人的频次、别人的人工价格、别人的失败损失上算出来的，搬到你这里一定是错的——<strong>这正是本书对所有"行业平均回收期"的态度</strong>。它唯一的用处是逼你把 C 和 E 两栏真的填出来：绝大多数上马失败的自动化项目，不是设备不好，是 C 被高估、E 从来没算过。</p>
+
+<h3>另一张会死的账：短贷长投的现金流时间轴</h3>
+
+<p>上面那条纪律说"不要用短贷做长线技改"。为什么会死，用一条时间轴说清楚——<strong>下面的数字是示意，不是实测</strong>，重要的是形状不是数值：</p>
+
+<div class="tw"><table>
+<thead><tr><th>时点</th><th>发生什么</th><th>现金流</th><th>账面</th></tr></thead>
+<tbody>
+<tr><td>第 0 月</td><td>定制非标设备到货，首付＋验收款</td><td><strong>大额流出</strong></td><td>形成固定资产，账面很好看</td></tr>
+<tr><td>第 1–6 月</td><td>调试、换型、产线适配；良率与节拍未达标</td><td>持续流出（工程师、停线、返工）</td><td>尚未进成本，利润表看不出来</td></tr>
+<tr><td>第 7–18 月</td><td>开始稳定产出，节省逐月体现</td><td>转正，但累计仍为负</td><td>折旧开始吃利润</td></tr>
+<tr><td><strong>第 12–24 月</strong></td><td><strong>短贷到期</strong></td><td><strong>一次性大额流出</strong></td><td>账上还有资产，但钱要今天还</td></tr>
+<tr><td>第 24–60 月</td><td>本该是回本期</td><td>——</td><td>——</td></tr>
+</tbody>
+</table></div>
+
+<div class="claim">死因不在第 60 月，在第 12–24 月：设备还在产线上正常跑，账面上还是盈利的，但那笔到期的短贷要用当期现金还，而项目的现金回收还没走完一半。<strong>这不是亏损，是流动性挤兑——很多倒下的实体企业，倒的时候利润表还是正的。</strong></div>
+
+<p><span class="ev j">判断</span> 三个放大器会让这条时间轴提前断裂：</p>
+
+<ul>
+<li><strong>客户砍单。</strong>定制非标是为某一个客户、某一个产品做的。客户改款或转单，设备的产出直接归零，而贷款不变。</li>
+<li><strong>接口废弃。</strong>上游控制器或系统换代，改造成本可能接近重买，且原厂支持与保修可能同时失效（第三节）。</li>
+<li><strong>残值幻觉。</strong>越是为你一家定制的设备，二手市场越接近于零。把它按高残值入账或拿去做抵押，等于给自己发了一张不能兑现的支票。</li>
+</ul>
+
+<p><span class="ev j">判断</span> 三条可执行的对策，都不需要预测技术：<strong>①期限对齐回收期，宁可利率高一点也不要期限短一截；②首台设备按次服务或租赁，跑通了再买（这也是农业那条经验）；③在签合同当天就把残值假设写下来并注明依据，三年后拿实际成交价对一次账。</strong>第三条最便宜，也最少人做。</p>
+
+<div class="who">
+  <div class="h">在读与刚毕业</div>
+  <div class="n">「从初级熬起」这条路在变窄</div>
+  <dl>
+    <dt>做什么</dt><dd>能否尽早接触<strong>有后果的完整任务</strong>，比进哪家公司更决定长期位置。四类能力里，前两类只能在真实现场长出来。</dd>
+  </dl>
+</div>
+
+<div class="who">
+  <div class="h">技能工种</div>
+  <div class="n">处境比多数人以为的好</div>
+  <dl>
+    <dt>做什么</dt><dd>往"会修新东西"迁移：传感器、电控、液冷、电池、机器人本体维保。<strong>维保需求是确定的</strong>（改造需求则不确定）。</dd>
+    <dt>不要做</dt><dd>不只守单一设备型号的熟练度。设备会换，诊断能力不会。</dd>
+  </dl>
+</div>
+
+
+
+<h3>示范：把这套框架用在一个具体决策上</h3>
+
+<p>前面全部是零件。最后走一遍完整流程，用一个大多数人真会遇到的决策：<strong>要不要现在让孩子去学"机器人相关"的专业。</strong>换成别的决策，步骤一样。</p>
+
+<div class="tw"><table>
+<thead><tr><th>步</th><th>动作</th><th>这个例子里的答案</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><strong>先归位</strong>：它属于哪条时钟、哪一档</td><td>"机器人相关"横跨三条时钟。必须先拆：做本体的（时钟 C，仅启动）、做零部件与集成的（时钟 B，成形）、做算力与模型的（时钟 A，成形但周期性强）</td></tr>
+<tr><td>2</td><td><strong>看深度而不是热度</strong></td><td>时钟 B 已有真实的按产出付费与复购，时钟 C 的收入九成来自科研教育消费。<em>热度的排序和深度的排序正好相反</em></td></tr>
+<tr><td>3</td><td><strong>找先行指标，不看滞后指标</strong></td><td>专业目录新增滞后 5–8 年，是本书最慢的指标之一——<strong>用它择业等于按后视镜开车</strong>。该看的是本地规上企业的岗位职责原文</td></tr>
+<tr><td>4</td><td><strong>问那两个乘数</strong></td><td>这个能力将来会被用多少次、替代的是什么价格的劳动。集成与维修：高频、贴近产线，乘数好；人形本体研发：低频、集中在少数厂商，乘数差</td></tr>
+<tr><td>5</td><td><strong>问签字权</strong></td><td>凡是需要有人对结果签字的岗位（安全、验收、维修资质），受自动化冲击最慢——因为那不是能力问题，是责任问题</td></tr>
+<tr><td>6</td><td><strong>写下改变判断的条件</strong></td><td>"如果某厂商明确工业生产收入占比连续两个报告期超过 20%，我就上调时钟 C 的权重"——写死，带日期</td></tr>
+</tbody>
+</table></div>
+
+<div class="claim">结论不是"该学"或"不该学"，是：<strong>学能落到工作单元上的那一层（集成、调试、维修、安全与验收），别学押在某个形态上的那一层。</strong>前者服务于三条时钟里已经成形的那一条，谁赢都要用；后者押的是形态本身。</div>
+
+<p><span class="ev j">判断</span> 这个流程真正的价值不在于它给出的答案，而在于<em>它让答案可以被推翻</em>——第 6 步写下的那个条件，就是你和自己签的对赌。三年后回头看，你会知道自己当时错没错、错在哪一步。<strong>没有第 6 步的决策，事后永远无法复盘，只能靠记忆重新讲一个自己听得顺耳的故事。</strong></p>
+
+<h2><span class="num">第十四节 · 自查</span>最可能错在哪，与证伪条件</h2>
+
+<ol>
+<li><strong>打分闭环（最致命）。</strong>深度档位和判据取值都是作者给的。一旦用它们去解释某件事为什么没发生，就可能是事后拟合。<em>唯一防线：任何判断在做出之前先写死观察量和阈值。</em></li>
+<li><strong>测量对象没有写死定义。</strong>盘点表把上游资本开支、手写的模型、学出来的模型放在同一张表上。"这一档是谁带来的"那一列缓解了误读，但<strong>没有给出可操作的判定规则</strong>——什么算"学出来的模型是必要条件"，边界仍靠人判断。<em>如果监控系统按这张表取数而不看那一列，它会把装机量、算力租金、教学软件渗透率平均成"深度"。</em>这比打分闭环更早失败：打分闭环是方法风险，对象不清是状态风险——方法再诚实，账也可能记在错的科目上。</li>
+<li><strong>范畴合并。</strong>各类领域拆开之后，本书仍假设它们会汇合成"物理世界换代"。如果专用自动化长期就是「一行业一专机」，而通用能力永远不成为约束，那么第一节那个终点定义从一开始就错了。</li>
+<li><strong>风险对冲可能被走过场化。</strong>如果出现"人工形式确认"的空转——签字还在、判断没了——实质深度会在形式未变的情况下增加，而框架会显示"深度没变"。<strong>这是整份自查里最不放心的一条。</strong></li>
+<li><strong>必要不等于充分。</strong>四条条件加三条判据只能解释"卡在哪"，不能预测"什么会发生"。</li>
+<li><strong>只度量"抽走"、不度量"做大"。</strong>需求扩张与重新分工可能让任务被自动化而岗位增加。</li>
+<li><strong>能力与约束不正交。</strong>更强的世界模型可能同时降低真机数据需求并改变尾部失败形态。</li>
+<li><strong>系统性低估了增强路线，而且是已经发生的漏测不是潜在风险。</strong>盘点表<strong>没有为遥操作、外骨骼、AR 辅助装配、驾驶辅助留任何一行</strong>——因为画面里还是一个人在干活。<em>如果物理世界主要以"人被增强"而非"人被替代"的方式改变，那么这张表测的东西从一开始就偏了。</em>另一处相关的过强表述已在样本五修正：一人多机（无人机、仓内远程、部分手术）说明<strong>增强在特定条件下确实能缓解人手短缺</strong>，能否换算成"第二个人"取决于 1:N 是否跑通，不应先验排除。</li>
+<li><strong>类比选错了。</strong>全文把"电力式物理换代"当作<strong>主要待检验假设</strong>，而不是默认结论（会引发存量报废）。但互联网证明了一场巨大的革命可以几乎不换物理世界。<strong>如果它其实更像互联网，那么第一节的终点定义、第二节的盘点逻辑都要重做</strong>——这是与第一条并列的框架级风险。</li>
+<li><strong>时间整体可能偏保守。</strong>用电气化做参照，但当代资本动员速度不是同一量级。如果错，大概率是我说慢了。</li>
+</ol>
+
+<h3>证伪条件</h3>
+
+<div class="tw"><table>
+<thead><tr><th>如果观察到</th><th>被证伪的是</th></tr></thead>
+<tbody>
+<tr><td>某个高期望损失场景出现<strong>无人监督的实质部署</strong>，而没有任何新的对冲安排（无保单、无包赔、无采购方承担）</td><td>「风险对冲决定深度」这条判据，第一节要重做</td></tr>
+<tr><td>人形厂商<strong>拆解后的工业生产用途</strong>占比连续两年显著上升，且伴随同一客户重复采购</td><td>「通用人形三年内不是主变量」——只推翻这一条，不推翻框架</td></tr>
+<tr><td>合成数据或世界模型使真机数据需求下降一个数量级</td><td>能力缺口的稳定性</td></tr>
+<tr><td>露天采摘或家用机器人<strong>先于</strong>工业接触操作跑通</td><td>「环境可改造是主要杠杆」——说明让机器适应世界那条路线赢了</td></tr>
+<tr><td><strong>到 2030 年前后，消费端与广域基础设施仍无强制换新迹象，而专用自动化已高度成熟</strong></td><td>「走电力的路」这个假设——说明这一轮更像互联网：革命是真的，但物理世界不会被换一遍。<em>那样第一节那支终点温度计就只剩下"长期不亮"这一个读数——它仍然有效，但不能再当作这条主线的终点定义</em></td></tr>
+<tr><td>出现<strong>由系统自主提出假设 → 自主设计并执行实验 → 产出可复现新知识</strong>的公开案例，且落在材料、控制或传感任一与物理执行相关的领域</td><td>「能力侧移动缓慢」这个前提。本书默认发现新知识仍由人主导、因而能力缺口的收窄有稳定节奏；<em>若知识生产本身被自动化，时钟 C 的权重应立即上调</em></td></tr>
+<tr><td>连续三期答不出"这期有什么证据与框架相反"</td><td>指标集本身选择性太强，该换指标而不是换结论</td></tr>
+</tbody>
+</table></div>
+
+
+
+<h3>本书不回答的三个问题</h3>
+
+<p>写清楚边界，比假装完备更诚实，也让读者知道该去别处找什么：</p>
+
+<div class="tw"><table>
+<thead><tr><th>不回答</th><th>为什么</th></tr></thead>
+<tbody>
+<tr><td><strong>技术红利怎么分配</strong></td><td>这是政治经济学题目。它可能是这一轮最大的风险，但它与本书要回答的"我该看什么、什么时候改变判断"不是同一类问题，混在一起两边都写不好</td></tr>
+<tr><td><strong>生命科学自己的进展</strong></td><td>基因编辑、合成生物不在跟踪范围。但它可能从<em>需求侧</em>改变本书的部分结论——第五节外科样本处已标出这条边界</td></tr>
+<tr><td><strong>具体标的与买卖时点</strong></td><td>本书给的是结构判断与指标清单。给标的需要的是另一套东西（估值、仓位、流动性），而且那套东西的错误代价由读者承担，不由作者承担</td></tr>
+</tbody>
+</table></div>
+
+<h2><span class="num">附录一</span>来源分级</h2>
+
+<ul class="src">
+<li><strong>监管／官方数据</strong>：ISO 标准页阶段码；FDA AI 医疗器械清单；最高人民法院 2022 年意见及 2026 年工作报告；上市与申报文件（招股书与问询回复、云厂商折旧政策披露）。</li>
+<li><strong>同行评审</strong>：手术机器人自主性分级框架及后续综述；FDA 器械证据普查；METR 公开研究与其方法学说明；《自然·医学》相关论文。</li>
+<li><strong>第三方机构估算</strong>：LBNL《Queued Up 2026》；IFR《World Robotics 2025》（<em>在役存量为按安装量累计并假定寿命的估算，非核验清单</em>）；IEA；Wood Mackenzie；IDC／Omdia 人形出货（<strong>三家三个数，须注明用谁的口径</strong>）。</li>
+<li><strong>当事方口径</strong>：自动驾驶运营方的安全对照与运营数字；数字人行业白皮书；公司新闻稿中的合作金额（<em>区分合同总潜在价值与已付现金</em>）。</li>
+<li><strong>关于书中不点名的那些数字</strong>：正文对企业一律以"某头部厂商""某公司披露"称呼，这是刻意的——本书不点名任何企业。但<em>匿名的应当是主体，不该是文件</em>，否则读者无法执行本书自己那条"回到原始来源复核"。所以在此交代文件类型与时点：人形出货与收入结构来自<strong>本体厂商 2025 年三季度的上市申报文件与问询回复</strong>；植保无人机的净利润来自<strong>相关公司 2024 年年报与 2025 年半年报</strong>；出货澄清来自<strong>厂商 2026 年 1 月的公开声明</strong>；"连续第八年的预测记分卡"来自<strong>一位机器人研究者持续公开的个人年度自评</strong>。按这几条线索加时点，读者可以自己定位到原件。</li>
+<li><strong>媒体报道的内部文件</strong>：电网企业具身智能采购规划——未经官方确认，<strong>只能进入「采购意图」，不能进入部署进度</strong>。</li>
+<li><strong>不采信</strong>：无一手出处的出货量与部署量传播稿；基于自述与问卷的效率提升幅度。</li>
+</ul>
+
+
+<h2><span class="num">附录二</span>监控系统的设计</h2>
+
+<p>目标是一个<strong>持续运行的系统：定期收集维度信息 → 更新概率判断 → 支持个人决策</strong>。本附录是它的架构、逻辑与依据。</p>
+
+<h3>一、收集什么：三层维度</h3>
+
+<div class="tw"><table>
+<thead><tr><th>层</th><th>内容</th><th>频率</th><th>来源</th></tr></thead>
+<tbody>
+<tr><td><strong>硬读数</strong>（自动采集）</td><td>招标／中标公告、标准阶段码、上市与申报公司收入结构、厂商停产与接口废弃公告</td><td>月</td><td>公开数据源，可脚本化</td></tr>
+<tr><td><strong>半硬读数</strong>（半自动＋人工核）</td><td>中标价趋势、零部件交货期、本地认证培训与岗位描述、加速器实际成交价</td><td>季</td><td>需人工判读与去噪</td></tr>
+<tr><td><strong>私有读数</strong>（只有自己组织能拿到）</td><td>验收工时、人工干预率、可用率、备件消耗、第二个与第十个客户的集成工时</td><td>随部署</td><td>自己的部署场</td></tr>
+</tbody>
+</table></div>
+
+<h3>二、怎么形成概率判断：证据先定价，再记账</h3>
+
+<div class="claim">概率不是算出来的，是记账记出来的。关键纪律是：每一类证据值多少，必须在看到它之前就写死。</div>
+
+<p>对每个待观察的深度转换，系统维护三样东西：</p>
+
+<ol>
+<li><strong>初始概率区间</strong>——明示是判断，给区间不给点估计（例如"三年内发生：20–35%"）。</li>
+<li><strong>上调证据清单与幅度</strong>——预先写死。例如：出现第二次同客户同用途重复采购＝上调一档；出现按产出计价合同＝上调一档；出现包赔或承保＝上调两档。</li>
+<li><strong>下调证据清单与幅度</strong>——同样预先写死。例如：首批采购后连续两年无复购＝下调两档；厂商收入结构中科研教育占比不降反升＝下调一档。</li>
+</ol>
+
+<p><span class="ev j">判断</span> 用"档"而不用小数，是因为这些指标的噪声远大于小数点后的精度。<strong>假装能给出 37% 这种数字，本身就是不诚实。</strong>三到五档足够支撑决策：极低／低／中／高／极高。</p>
+
+<h3>三、怎么支持决策：概率挂到动作上</h3>
+
+<p>每个转换点预先绑定"到什么概率做什么"。示例：</p>
+
+<div class="tw"><table>
+<thead><tr><th>转换</th><th>概率区间</th><th>对应动作</th></tr></thead>
+<tbody>
+<tr><td rowspan="3">专用自动化在某场景从 D3 到 D4</td><td>低</td><td>投资：仅"买认知"规模；经营：小规模试点</td></tr>
+<tr><td>中</td><td>投资：可开始配置摩擦面（维修、集成）；经营：转常态部署</td></tr>
+<tr><td>高</td><td>投资：可谈"买产能"；学习：该技能方向确认</td></tr>
+<tr><td rowspan="2">通用人形进入生产</td><td>低（当前）</td><td>全部：不作为决策变量</td></tr>
+<tr><td>中以上</td><td>全部：整份文档需要重写</td></tr>
+</tbody>
+</table></div>
+
+<h3>四、七条不可违反的约束</h3>
+
+<ol>
+<li><strong>不做单一进度条，不做平均。</strong>四类领域分开记，永不合并成一个数。</li>
+<li><strong>不打点估计，只用档位；确实需要标刻度时给区间，且带退出条件。</strong></li>
+<li><strong>阈值与证据定价先于观察。</strong>改了必须留记录并说明理由。</li>
+<li><strong>每期第一个问题是：这期有什么证据与框架相反？</strong>连续三期答不出，换指标而不是换结论。</li>
+<li><strong>每期必须标注哪些指标这期拿不到</strong>，而不是跳过。</li>
+<li><strong>判读不自动化。</strong>采集可以自动，判读必须人工——判读是唯一有价值的部分。</li>
+<li><strong>没有新证据时写「本期无变化」</strong>，不微调数字来显得有进展。</li>
+</ol>
+
+<p class="src">诚实说明：这个系统做不了精密的进度条。真正可稳定重复取得的硬读数只有四项，其余都需要人工判读并接受噪声。<strong>它能做的是概率判断与反证检查——在关键节点提醒你该改变什么决策，以及在你的判断开始自我确认时把你叫停。</strong></p>
+
+
+<h3>五、一张填好的样表</h3>
+
+<p>空模板和填好的表，可用性差一个数量级。下面是按上面这套设计，给三条时钟各填一行的样子——数据截至 2026-08-29，格式比数值重要。</p>
+
+<div class="tw"><table>
+<thead><tr><th>跟踪对象</th><th>当前档位</th><th>最近一次读数（当期）</th><th>下一个触发点（先行）</th><th>我给的概率与日期</th></tr></thead>
+<tbody>
+<tr>
+  <td><strong>A · 算力资本周期</strong></td>
+  <td>成形</td>
+  <td>数据中心用电增速两位数；上一代加速器现货租金较峰值跌约七成</td>
+  <td>自由现金流转正 / 实际成交残值出现系统性减值</td>
+  <td>"三年内出现一次 20% 以上的资本开支下修"＝<strong>中（40–60%）</strong>（2026-08-29 记）</td>
+</tr>
+<tr>
+  <td><strong>B · 专用物理自动化</strong></td>
+  <td>成形（当前主战场）</td>
+  <td>厂商收入结构里"明确工业生产"约 2.6%；植保无人机飞防服务约 130 亿元、26 亿亩次</td>
+  <td>同一采购人对同一标的物的第二次、第三次中标公示；集采文件里出现"按产出结算"</td>
+  <td>"三年内至少两个新场景走到 D3"＝<strong>中偏高（55–75%）</strong>（2026-08-29 记）</td>
+</tr>
+<tr>
+  <td><strong>C · 通用人形平台</strong></td>
+  <td>仅启动</td>
+  <td>出货口径三家机构三个数；收入结构以科研教育消费为主</td>
+  <td>某厂商"明确工业生产"收入占比连续两个报告期超过 20%</td>
+  <td>"三年内该占比破 20%"＝<strong>低（10–30%）</strong>（2026-08-29 记）</td>
+</tr>
+</tbody>
+</table></div>
+
+<div class="note">
+  <span class="lb">这张表的三条使用纪律</span>
+  <p><strong>一、概率必须带日期。</strong>没有日期的概率无法事后对账，等于没写。</p>
+  <p><strong>二、触发点必须是"能查到的动作"，不是"感觉变热了"。</strong>上表每一个触发点都能对应到一份可以打开的公告或报表。</p>
+  <p><strong>三、每年公开自评一次，错了留痕不删。</strong>这套东西的价值不在预测准，在于<em>能算出自己错在哪、错多少</em>。删掉错误记录的追踪系统，几年后就退化成一个自我确认的机器。</p>
+</div>
+
+
+<h3>六、口径字典（v1）：这些词必须先定义，否则记不了账</h3>
+
+<p>上面那套记录方法有一个前提：<strong>同一个词，三年后还是同一个意思。</strong>下面把最容易漂移的六个字段先钉死。定义可以改，但改了要写进 ERRATA，不能悄悄换。</p>
+
+<div class="tw"><table>
+<thead><tr><th>字段</th><th>本书的定义</th><th>为什么必须定义</th></tr></thead>
+<tbody>
+<tr><td><strong>复购</strong></td><td><em>同一采购人 ＋ 同一标的物类别 ＋ 24 个月内的第二次及以后采购。</em>扩产追加算；备件与耗材不算；不同型号但同一用途算</td><td>不写窗口和口径，"复购"可以被拉长到任意年限，也可以被备件混进来</td></tr>
+<tr><td><strong>人工干预率</strong></td><td><em>每 100 个任务的人工介入次数</em>（首选）；用时间口径时须注明为"接管秒数占运行秒数比"。两种口径不可混用、不可换算</td><td>每百小时、每任务、接管秒占比，三种数可以差一个数量级</td></tr>
+<tr><td><strong>日运行小时</strong></td><td>必须与<em>任务需求小时</em>或<em>理论可用小时</em>成对给出</td><td><strong>它不是越高越好。</strong>有的设备每天只需跑两小时就完全满足任务；单看这个数会把"需求少"误读成"没跑起来"</td></tr>
+<tr><td><strong>按产出计价</strong></td><td>列为<strong>强信号，不是必要条件</strong>。按台买断同样可能是真实生产性采购</td><td>反过来也成立：按效果付费可能只是供应商的补贴期打法。计价方式提示深度，不定义深度</td></tr>
+<tr><td><strong>中标价降幅收窄</strong></td><td>必须与<em>复购</em>同时出现才计入；有条件时再与<em>毛利率或服务条款变化</em>交叉验证</td><td>单独出现可能是竞争减少、限价或配置缩水</td></tr>
+<tr><td><strong>"明确工业生产用途"</strong></td><td>指厂商披露中被单独拆出、且用途表述为生产环节的收入；<em>企业导览、展示、科研教育、政府示范一律不算</em></td><td>这是全书用得最重的一个口径，也是最容易被大类掩盖的一个</td></tr>
+</tbody>
+</table></div>
+
+<div class="claim">口径字典的价值不在于定义得多正确，在于<strong>三年后还能拿同一把尺子去量</strong>。定义可以是错的，但不能是流动的——流动的定义会让所有历史记录一起作废。</div>
+
+<h2><span class="num">附录三</span>与外部研究的对照：哪些是共识，哪些是缺的</h2>
+
+<p>这一节的用途有二：一是防止本书的判断在自说自话；二是为监控系统标出取数来源——将来要补硬数据，知道去谁那里拿。</p>
+
+<h3>一、外部研究已经形成共识的部分</h3>
+
+<div class="tw"><table>
+<thead><tr><th>共识</th><th>外部表述</th><th>本书对应</th></tr></thead>
+<tbody>
+<tr><td><strong>落地次序</strong></td><td>官方智库的判断是"结构化工业场景先行、特种危险作业跟进、民生服务场景延后"，并指出电力巡检、带电作业已率先从试点进入规模化部署</td><td>第二节盘点表的档位排序</td></tr>
+<tr><td><strong>数据的死循环</strong></td><td>"无法大规模商业部署就产不出高质量真机数据，进而难以支撑泛化；硬件稳定性与成本又制约规模化复制，环环相扣"</td><td>第三节数据约束</td></tr>
+<tr><td><strong>价值必须可核算</strong></td><td>行业报告：商业化"会优先发生在需求明确、任务可定义、<strong>价值可核算</strong>的场景"；规模化是"让每台机器人长期稳定地创造<strong>可核验的产出</strong>"</td><td>第一节四条落地条件与 TCO 门槛</td></tr>
+<tr><td><strong>形态分化</strong></td><td>研究机构明确区分：非人形（巡检、仓储、安防）订单千台到万台级、商业化订单占比高；人形是小批量百台千台级、多为框架协议</td><td>样本五的形态错配</td></tr>
+<tr><td><strong>集成才是真瓶颈</strong></td><td>部署方的表述："真正的瓶颈是导航碎片化的硬件、模型、安全要求，以及把这些集成起来"</td><td>第三节接口开放性</td></tr>
+<tr><td><strong>从炒作转向 ROI</strong></td><td>国际展会与投行的共同判断：物理 AI 已进入早期商业部署，接下来要证明真实回报</td><td>第十二节噪音与第十节当期指标</td></tr>
+</tbody>
+</table></div>
+
+<p><span class="ev j">判断</span> 本书判据与外部主流研究在多处对应。<strong>但这只能说明没有标新立异，不能说明推导独立，也不能说明结论正确</strong>——若先读过同类报告再"推导"，这种对应就是循环。<em>能诚实说的只有：方向未见明显偏离，且并不新颖。</em></p>
+
+<h3>二、外部有、本书缺的：一手产业数据</h3>
+
+<p>券商、智库与投行手里有本书拿不到的东西，将来做监控系统应当从这些渠道补：</p>
+
+<div class="tw"><table>
+<thead><tr><th>缺口</th><th>外部已有的口径举例</th></tr></thead>
+<tbody>
+<tr><td><strong>成本结构</strong></td><td>单台本体的执行器与传感器占比、各环节价值量分布</td></tr>
+<tr><td><strong>国产化率分环节</strong></td><td>一体化关节国产化率最高但高端天花板未破；六维力传感器从空白进入起步验证期；灵巧手国产化程度最高、有厂商年出货破万</td></tr>
+<tr><td><strong>资本流向的集中度</strong></td><td>某半年度融资总额中，早期轮次里约七成集中在头部十家</td></tr>
+<tr><td><strong>终端采用率调研</strong></td><td>对数百家仓库客户的调研显示：大型仓库中日常运营用到 AI 的不足一半；相当比例的大公司自动化率低于四分之一；<strong>最大障碍是高前期成本与长回收期</strong></td></tr>
+<tr><td><strong>可核验的运营指标</strong></td><td>有从业者提出三条务实标准：<strong>复购率、投资回报率不低于 30%、经营性现金流</strong>（"很多公司有收入，但全挂在应收账款上"）</td></tr>
+</tbody>
+</table></div>
+
+<p><span class="ev j">判断</span> 最后那三条与本书第十节的当期指标高度一致，<strong>但外部给了阈值而本书没给</strong>。</p>
+
+<div class="fix">
+  <span class="lb">但这个阈值不能直接借用</span>
+  <p>附录二写死了「阈值先于观察」。<strong>看到一个从业者报出 30% 之后再把它设成切换线，正是事后设阈</strong>——这条纪律是本书自己定的，不能自己先破。</p>
+  <p>正确做法：把它记为<em>待检验的外部参考值</em>，先说明它的周期、资本口径、是否含残值与替代方案，再决定要不要在下一期开始前写死为阈值，并留下修改记录。</p>
+</div>
+
+<h3>三、本次对照中未见相同组合的三处</h3>
+
+<p class="src">措辞须谨慎：这是一次<strong>非系统性</strong>的检索对照，只能说"本次未见相同组合"，不能说"独有"。自主等级、商业成熟度、风险分配、按结果付费、保险与部署扩散，在既有研究里都各自存在。</p>
+
+<ol>
+<li><strong>可证伪的档位与退出条件。</strong>外部大量研究给的是落地节奏与市场规模预测，而不同机构对同一时间窗的预测可相差一个数量级。<span class="ev j">判断</span> <strong>但要纠正一个常见的错误推论：预测分歧大不等于预测不可证伪</strong>——只要写死目标年份、市场定义和数值，预测照样可以被证伪，分歧只说明事前不确定性高。本书选择四档＋退出条件＋三类指标，不是因为对方不可证伪，是因为<em>档位转换比市场规模更接近本书使用者真正要做的决策</em>。</li>
+<li><strong>把风险对冲写成连续可观察量。</strong>外部普遍讨论"安全标准"与"责任划分"，但少见把它抽象成"谁愿意为失败兜底"，也少见指出不同市场对冲形式的等价性（保险市场与大型采购方的资产负债表）。</li>
+<li><strong>区分竞赛驱动与消费驱动的两条需求曲线。</strong>外部报告普遍把芯片、电力、数据中心的扩张与"物理 AI 落地"并列叙述，本书认为二者驱动力不同、可能脱钩甚至反向。</li>
+</ol>
+
+<h3>四、方法上领先本书的先例</h3>
+
+<p><span class="ev f">事实</span> 一位资深机器人研究者已连续第八年发布年度「预测记分卡」：给自己的每条预测标注日期，每年公开自评对错，并长期维护一份跨越数十年的预测表。他在 2026 年 8 月发表的《技术发展与部署的四种时间尺度》进一步指出，人们常在这几种时间尺度之间跳跃，从而做出严重错误的时间预测；他还区分了<strong>情境化（situated）与具身化（embodied）</strong>两个概念，主张两者都需要。</p>
+
+<div class="claim">这几乎就是本书附录二那个监控系统的成熟版本，而且已经运行了八年。方法上应当直接借鉴：给判断标日期、每年公开自评、认错留痕。</div>
+
+<p><span class="ev j">判断</span> 另一条值得跟踪的外部主线是<strong>世界模型／空间智能</strong>方向的系统性论述——它给出的是能力路线的分类框架（渲染、模拟、推理各自解决什么），与本书的部署路线框架互补：<em>那一侧回答"能力从哪来"，本书回答"能力到位之后还卡什么"。</em>两者拼起来才是完整图景。</p>
+
+<h3>五、结论</h3>
+
+<p><strong>本书不是闭门造车</strong>——判据与外部共识多处重合，说明方向可靠。<strong>但也不领先</strong>——这个课题已有大量成果，且外部在一手数据上明显更厚，在追踪方法上有先行者领先多年。</p>
+
+<p><span class="ev j">判断</span> 本书的真实价值只在一处：<em>它是为一个具体的人、在一个具体的位置上、做具体决策而写的判断框架。</em>外部研究面向产业与资本，回答"这个行业会怎样"；本书回答"我该看什么、什么时候改变什么"。<strong>这两件事不能互相替代，但前者可以持续为后者供料。</strong></p>
+
+
+
+
+<h2><span class="num">附录四</span>招标附件与公告怎么读：字段级清单</h2>
+
+<p>本书反复说"该盯的是招标文件的技术规范与验收条款"。但"去看招标公告"这句话对没打开过的人等于没说——公告标题里什么都没有，<strong>信息全在附件里，而且集中在少数几个字段上。</strong>这一节给的是字段清单与判读逻辑。</p>
+
+<div class="note">
+  <span class="lb">先说边界</span>
+  <p>这里给的是<strong>该找哪些字段、找到之后怎么读</strong>，不提供任何真实招标文件的样例或复刻——本书手上没有可核的公开样本，编一份"示例附件"就是造假。字段名称在不同采购方、不同行业会有差异，请按语义找，不要按字面搜。</p>
+</div>
+
+<h3>一、在招标文件里找这七个字段</h3>
+
+<div class="tw"><table>
+<thead><tr><th>字段（按语义找）</th><th>为什么它重要</th><th>怎么读</th></tr></thead>
+<tbody>
+<tr><td><strong>技术规范中的"自主等级/无人值守"表述</strong></td><td>决定这批设备是买来替人，还是买来辅助人</td><td>写"远程值守""一人多机""需专人监护"＝<strong>按替代深度算仍在 D3</strong>；写"无人值守连续运行"才可能是 D4。<em>但"一人多机"同时是增强路线的核心读数——按第二节第二张表另记它的 N 值，别只当成"还没到 D4"就丢掉</em></td></tr>
+<tr><td><strong>验收标准与验收方式</strong></td><td>这是"付费部署"与"演示"的分界线</td><td>看它验的是<em>功能</em>（能不能做）还是<em>产出</em>（做了多少、多久不停）。验产出的才算真进生产</td></tr>
+<tr><td><strong>结算方式</strong></td><td>本书最硬的一条判据</td><td>按台结算＝卖设备；<strong>按件／按工时／按可用率结算＝按产出付钱</strong>，这一条单独就能把深度往上推一档</td></tr>
+<tr><td><strong>质保期与延长质保</strong></td><td>质保是最轻量的一种对冲</td><td>质保从 1 年拉长到 3 年以上，说明供应方开始愿意为失败承担成本</td></tr>
+<tr><td><strong>包赔／赔付条款</strong></td><td>对冲的强形态</td><td>出现"停机赔付""产出不达标赔付"＝有人开始为这件事的失败兜底（判据一）</td></tr>
+<tr><td><strong>备件响应与到场时限</strong></td><td>服务网络是否真的建起来</td><td>"4 小时到场""区域备件库"这类条款，比任何新闻都能说明本地部署密度</td></tr>
+<tr><td><strong>培训与持证要求</strong></td><td>新工种正在成形的最早痕迹</td><td>要求供应方提供操作/维修培训与认证，往往早于教育体系与专业目录数年</td></tr>
+</tbody>
+</table></div>
+
+<h3>二、在中标公示里做三件事</h3>
+
+<ul>
+<li><strong>按"采购人＋标的物"配对，不按公司名搜。</strong>你要找的是<em>同一个买家、同一类东西的第二次和第三次</em>——复购是 D3 的定义项，也是这条线上最难伪造的信号。</li>
+<li><strong>看单价，不只看总额。</strong>总额受数量影响，单价才反映成本曲线。<em>单价降幅收窄</em>与<em>出现复购</em>必须同时出现才算数：只有前者可能是竞争减少或限价。</li>
+<li><strong>看中标数量与规划数量的比。</strong>本书电网那一格就是这么处理的——规划是意图，中标才是钱。两者差一个量级的情况并不少见。</li>
+</ul>
+
+<h3>三、在企业报告里对应地找三处</h3>
+
+<div class="tw"><table>
+<thead><tr><th>在哪</th><th>找什么</th><th>陷阱</th></tr></thead>
+<tbody>
+<tr><td>分部/收入结构</td><td>"行业应用"这类大类被<strong>拆开之后</strong>的明确工业生产项</td><td>不拆开的大类几乎无信息量——科研、教育、展厅导览常常都装在里面</td></tr>
+<tr><td>合同负债／预收</td><td>已收钱未交付的规模与变化</td><td>它是先行的，但也可能只是付款节奏变化，需与交付量同看</td></tr>
+<tr><td>存货与发出商品</td><td>造出来了、还没确认收入的部分</td><td>这一栏是"下线≠出货"在报表上的样子（见口径课）</td></tr>
+</tbody>
+</table></div>
+
+<h3>四、一条元纪律</h3>
+
+<div class="claim">附件里读到的东西，价值不在于它新，而在于<strong>它是当事人为了约束彼此而写下来的</strong>——没有人在验收条款里做营销。这就是为什么七个字段抵得过七十条新闻。</div>
+
+<p class="src">如果你所在的行业根本没有公开招标（大量民营采购不走公开程序），那么这一节的替代品是：供应商的报价单结构与合同条款——同样的七个字段，换个地方看。</p>
+
+<h2 class="cheat"><span class="num">附录五</span>一页决策体检卡</h2>
+
+<p class="src">这一页是全书个人实操层面的最高概括。建议截图或单独打印一页，放在手边——买车、换工作、报专业、企业买设备的时候，第一步先过这张卡。</p>
+
+<p class="src"><strong>这一页可以单独传播。</strong>转发、打印、贴在办公室都可以，注明出处即可。但请连同一句话一起传：<em>卡上每一格背后都有一节的论证与一组带来源标注的证据；只传这一页，等于只传结论。</em></p>
+
+<div class="tw"><table>
+<thead><tr><th>你要付出的</th><th>这是哪类决策</th><th>先看哪个指标</th><th>一句纪律</th></tr></thead>
+<tbody>
+<tr><td rowspan="3"><strong>钱</strong></td><td>① 投资（配出去）</td><td>重复采购 ＋ 中标价降幅收窄</td><td>两条同时出现之前，只买认知不买产能</td></tr>
+<tr><td>② 消费（花出去）</td><td>接口废弃预告、配件停产公告</td><td>换新的时点由公告决定，不由体验决定</td></tr>
+<tr><td>③ 借（借进来）</td><td>这件资产的经济寿命与二手活跃期</td><td>期限别长过它的命；二手市场三年内可能没有的，别借超三年</td></tr>
+<tr><td rowspan="2"><strong>时间</strong></td><td>④ 学习（投进去）</td><td>本地岗位职责原文</td><td>练判断与诊断，别练可被便宜验证的熟练动作</td></tr>
+<tr><td>⑤ 职业（卖出去）</td><td>本地服务采购、区域备件仓与服务半径；招聘描述里的 N 值</td><td>问三句：卖动作还是判断／哪条时钟／要不要签字</td></tr>
+<tr><td><strong>注意力</strong></td><td>⑥ 看什么、多久看一次</td><td>那七个取数位置</td><td>每月两小时；不看演示、融资额与榜单</td></tr>
+<tr><td><strong>风险</strong></td><td>⑦ 谁替你承担</td><td>除外责任条款 ＞ 费率数字</td><td>费率分层出现之前，买的是叙事不是保障</td></tr>
+<tr><td><strong>选择权</strong></td><td>⑧ 什么时候不动</td><td>这条时钟闭合了没有</td><td>不可逆的决定，证据门槛高一档</td></tr>
+</tbody>
+</table></div>
+
+<div class="note">
+  <span class="lb">拿到一条消息，五分钟体检</span>
+  <p><strong>① 口径是什么？</strong>（下线还是出货、亩还是亩次、分母换没换）<br>
+  <strong>② 钱付了没有，为什么付？</strong>（规划、意向、框架协议一律出局）<br>
+  <strong>③ 它在哪条时钟上？</strong>（算力资本 / 专用自动化 / 通用人形）<br>
+  <strong>④ 它测的是我关心的那件事吗？</strong>（说不出因果链就只是一个走得快的数字）<br>
+  <strong>⑤ 如果它是真的，我会做什么不同的事？</strong>（答不上来＝看过就好）</p>
+</div>
+
+<div class="claim">最后一格，也是唯一一格必须动笔的：<br>
+「如果观察到 ________，我就把 ________ 改成 ________。」——写下日期，存起来。<br>
+没有这一格的决定，事后无法复盘，只能靠记忆重新讲一个自己听得顺耳的故事。</div>
+
+<p class="src" style="border-top:1px solid var(--line);padding-top:10px;margin-top:16px">
+出自《从大模型到物理世界 · 判断框架手册》 <span class="mono">v2026.08.29</span> · 作者 黄宇庭 · 事实层核于 2026-08-29<br>
+<em>尺子会旧，认错不会</em>——完整论证、来源标注与证伪条件见原书；本卡可自由传播，请连同这一行一起传。</p>
+
+<div class="foot">
+  从大模型到物理世界<br>
+  2026-08-29 · 事实层核于当日<br>
+  <br>
+  凡涉具体数字均已标注来源性质：监管数据／同行评审／第三方估算／当事方口径／媒体转述。<br>
+  判断类结论的边界集中在第十四节自查与证伪条件。
+</div>
+
+</div>
