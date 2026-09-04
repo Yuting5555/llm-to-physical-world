@@ -8,6 +8,14 @@
 
 **许可**：[CC BY-NC-ND 4.0](LICENSE)（可自由传播，禁止商用与改编）
 
+## 怎么拿
+
+| | 去哪 |
+|---|---|
+| **在线读**（不用下载，手机可读） | https://yuting5555.github.io/llm-to-physical-world/ |
+| **下载 PDF**（A4，94 页） | **[最新版 Release](https://github.com/Yuting5555/llm-to-physical-world/releases/latest)** ← 下载统一走这里 |
+| 历史版本 | [全部 Release](https://github.com/Yuting5555/llm-to-physical-world/releases)（旧版保留不删） |
+
 ---
 
 ## 这是什么
@@ -77,7 +85,7 @@
 
 ```
 docs/index.html      正文（唯一主稿，浏览器直接打开）
-releases/            排版版 PDF（A4，94 页；历史版本保留不删）
+releases/            排版版 PDF 的仓内归档（下载请走上面的 Release 页，那里才有计数）
 assets/              一页决策体检卡、盘点表、T/D 二维地图（可单独传播，已随 v2026.09.03 重绘）
 SOURCES.md           来源与口径说明
 SCORECARD.md         带日期的概率判断，逐年公开自评
